@@ -1,0 +1,153 @@
+
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>ADS+GOOGLE</title>
+    <style>
+		html, body {
+			height: 100%;
+			margin: 0;
+			padding: 0;
+		}
+		#map, #pano {
+			float: left;
+			height: 100%;
+			width: 50%;
+		}
+		.inaadressSearchContainer {
+			background: #fff;
+			z-index: 99999999999999; 
+		}
+		.mainContainer{
+			width:100%;
+			height:80%;
+		}
+		.headerContainer{
+			height:20%;
+			background: #fff;
+		}
+		
+		#search {
+			margin: 0 auto;
+			margin-top: -55px;
+			width: 50%;
+		}
+		#logo{
+			font-size: 30px;
+			padding: 14px 14px 14px 14px  ;
+			color: #2779aa;
+		}
+		.ui-page-theme-a #search{
+			background: #eee !important;
+		}
+		
+    </style>
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+	<!-- Latest compiled and minified JavaScript -->
+	<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="http://inaadress.maaamet.ee/inaadress/js/inaadress.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.3.10/proj4.js"></script>
+    <script type="text/javascript" src="http://epsg.io/3301.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+  </head>
+  <body>
+	<div class="headerContainer">
+	  <div id="logo">&nbsp; ADS  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Logo_Google_2013_Official.svg/220px-Logo_Google_2013_Official.svg.png" alt="Google" style="height:30px;"></div>
+	  <div id="search" style=" height: 400px"></div>
+		
+	</div>
+	<div class="mainContainer">
+		<div id="map"></div>
+		<div id="pano"></div>
+	</div>  
+    <script>
+	$('#search').removeClass('ui-page-theme-a');
+      var proj1 = '+proj=lcc +lat_1=59.33333333333334 +lat_2=58 +lat_0=57.51755393055556 +lon_0=24 +x_0=500000 +y_0=6375000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs',
+            proj2 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ';	
+function initialize() {
+$('#search').removeClass('ui-page-theme-a');
+  var sv = new google.maps.StreetViewService();
+function processSVData(data, status) {
+  if (status === google.maps.StreetViewStatus.OK) {
+    var marker = new google.maps.Marker({
+      position: data.location.latLng,
+      map: map,
+      title: data.location.description,
+	  icon:'http://maps.google.com/mapfiles/ms/icons/purple-dot.png'
+    });
+    panorama.setPano(data.location.pano);
+    panorama.setPov({
+      heading: 270,
+      pitch: 0
+    });
+    panorama.setVisible(true);
+    marker.addListener('click', function() {
+      var markerPanoID = data.location.pano;
+      // Set the Pano to use the passed panoID.
+      panorama.setPano(markerPanoID);
+      panorama.setPov({
+        heading: 270,
+        pitch: 0
+      });
+      panorama.setVisible(true);
+    });
+  } else {
+    console.error('Street View data not found for this location.');
+	alert('Raadiuses 100 meetrit objekti asukohast StreetView andmestik puudub');
+  }
+}
+var inAadress = new InAadress({"mode":"3","container":"search","nocss":false,"appartment":0});
+document.addEventListener('addressSelected', function (e) {      
+        var info = e.detail;
+		 if (info.length > 0) {
+            // usually select first coordinate as it is most precise
+            var x = info[0].x;
+            x = parseFloat(x);
+            var y = info[0].y;
+            y = parseFloat(y);
+			var coords=new google.maps.LatLng(proj4(proj1, proj2, [y, x])[1], proj4(proj1, proj2, [y, x])[0]);
+			map.setCenter(new google.maps.LatLng(proj4(proj1, proj2, [y, x])[1], proj4(proj1, proj2, [y, x])[0]));			
+           var marker = new google.maps.Marker({
+    position: coords,
+	icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+});
+// To add the marker to the map, call setMap();
+marker.setMap(map);
+sv.getPanorama({location: coords, radius: 100}, processSVData);
+        }
+})
+  var maaamet = {lat: 59.421047261154946, lng: 24.697965935520642};
+  var map = new google.maps.Map(document.getElementById('map'), {
+    center: maaamet,
+    zoom: 14
+  });
+  var panorama = new google.maps.StreetViewPanorama(
+      document.getElementById('pano'), {
+        position: maaamet,
+        pov: {
+          heading: 34,
+          pitch: 10
+        }
+      });
+  map.setStreetView(panorama);
+  
+  $('#search').removeClass('ui-page-theme-a');
+}
+$(document).ready(function(){
+    $("[rel=tooltip]").tooltip({ placement: 'right'});
+	
+	  
+});
+    </script>
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?signed_in=true&callback=initialize">
+    </script>
+  </body>
+</html>
+

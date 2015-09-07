@@ -1,0 +1,32 @@
+html, body, #map-canvas {
+	height: 100%;
+	margin: 0px;
+	padding: 0px
+}
+#map-canvas{
+	border: 1px solid #e3e3e3;
+	border-radius: 4px;
+	border-color: #ddd;
+	border-color: rgba(0, 0, 0, .15);
+}
+body {
+    margin-right: auto;
+    margin-left: auto;
+    padding-left: 80px;
+    padding-right: 80px;
+	font-family:'Trebuchet MS', Helvetica, sans-serif;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+#callout {
+	width:100%;
+}
+#left-slider{
+	left: 0%
+}
+#right-slider{
+	left: 100%
+}
+#totalMarkers{
+	display: none
+}

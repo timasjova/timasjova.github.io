@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>SP map</title>
+    <!-- JavaScript -->
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/libs/jquery-2.1.0.min.js"></script>
+    <script src="js/libs/bootstrap.js"></script>
+    <script type="text/javascript" src="js/libs/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/libs/bootstrap-slider.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false">
+    </script>
+    <script type="text/javascript" src="http://google-maps-utility-library-v3.googlecode.com/svn/trunk/markerclusterer/src/markerclusterer.js"></script>
+    <script src="js/initialData.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/controls.js"></script>
+    <script src="js/main.js"></script>
+    <!-- Bootstrap core CSS -->
+    <link href="css/libs/bootstrap.css" rel="stylesheet">
+    <link href="css/libs/bootstrap.min.css" rel="stylesheet" media="screen" />
+    <!-- Custom CSS -->
+    <link href="css/libs/stylish-portfolio.css" rel="stylesheet">
+    <link href="css/libs/slider.css" rel="stylesheet" media="screen" />
+    <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet" media="screen" />
+</head>
+
+<body>
+    <!-- Side Menu --> <a id="menu-toggle" href="#" class="btn btn-primary btn-lg toggle"><i class="fa fa-bars"></i></a>
+    <div id="sidebar-wrapper"> <a id="menu-close" href="#" class="btn btn-default btn-lg pull-right toggle"><i class="fa fa-times"></i></a>
+        <div>
+            <h4>Materials by year</h4>
+            <ul id="mList"></ul>
+        </div>
+    </div>
+    <!-- /Side Menu -->
+    <div class="callout" id="callout">
+        <div class="well-sm">
+            <img src="css/img/bg.png">
+            <h3 style="float: right">Saue Production raw material purchase map</h3>
+        </div>
+        <br>
+        <div class="well-sm" id="panel">
+            <div id="year" class="btn-group buttonRightWell">
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">Year <span id="yearName">&nbsp</span>  <span class="caret"></span>
+                </button>
+                <ul id="years" class="dropdown-menu">
+                    <li value="2007" id="2007"><a href="#">2007</a>
+                    </li>
+                    <li value="2008" id="2008"><a href="#">2008</a>
+                    </li>
+                    <li value="2009" id="2009"><a href="#">2009</a>
+                    </li>
+                    <li value="2010" id="2010"><a href="#">2010</a>
+                    </li>
+                    <li value="2011" id="2011"><a href="#">2011</a>
+                    </li>
+                    <li value="2012" id="2012"><a href="#">2012</a>
+                    </li>
+                    <li value="2013" id="2013"><a href="#">2013</a>
+                    </li>
+                    <li value="2014" id="2014"><a href="#">2014</a>
+                    </li>
+                </ul>
+			<span>&nbsp;&nbsp;</span>
+            </div>Move slider to see changes: <b>2007&nbsp;&nbsp;</b> 
+            <input id="slider" type="text" class="span2" data-slider-min="2007" data-slider-max="2014" data-slider-step="1" data-slider-value="[2007,2014]" /> <b>&nbsp;&nbsp;2014</b>
+            <div class="btn-group">
+                <div id="statistics" class="btn-group buttonRightWell">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"> <span id="statName">Density heatmap</span>  <span class="caret"></span>
+                    </button>
+                    <ul id="statOptions" class="dropdown-menu">
+                        <li value="weight" id="weight"><a href="#">Weight heatmap</a>
+                        </li>
+                        <li value="number" id="number"><a href="#">Density heatmap</a>
+                        </li>
+                    </ul>
+                </div>
+                <button type="button" class="btn btn-default" id="toggleHeatmap">Hide heatmap</button>
+            </div>
+            <button type="button" class="btn btn-default" id="toggleMarkers">Show markers</button>
+            <button type="button" class="btn btn-default" id="toggleClusters">Show clusters</button>
+            <button type="button" class="btn btn-default" id="mapType">Satellite</button>
+        </div>
+        <br>
+        <div class="well-sm"> <span id="totalQuantity">Total quantity on the map:</span>
+            <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+            <span id="totalMarkers">Total markers on the map:</span>
+        </div>
+        <br>
+        <div id="map-canvas"></div>
+        <br>
+        <div class="well-sm">
+            <center>© Saue Production OÜ 2014</center>
+        </div>
+        <br>
+    </div>
+    <!-- Custom JavaScript for the Side Menu and Smooth Scrolling -->
+    <script>
+        $("#menu-close").click(function(e) {
+            e.preventDefault();
+            $("#sidebar-wrapper").toggleClass("active");
+        });
+    </script>
+    <script>
+        $("#menu-toggle").click(function(e) {
+            e.preventDefault();
+            $("#sidebar-wrapper").toggleClass("active");
+        });
+    </script>
+    <script>
+        $(function() {
+            $('a[href*=#]:not([href=#])').click(function() {
+                if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') || location.hostname == this.hostname) {
+                    var target = $(this.hash);
+                    target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
+                    if (target.length) {
+                        $('html,body').animate({
+                            scrollTop: target.offset().top
+                        }, 1000);
+                        return false;
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

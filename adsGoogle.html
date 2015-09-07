@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html>
   <head>
@@ -39,6 +37,7 @@
 			padding: 14px 14px 14px 14px  ;
 			color: #2779aa;
 		}
+		
 		#date{
 			position: absolute;
 			right:15px;
@@ -47,7 +46,6 @@
 		.ui-page-theme-a #search{
 			background: #eee !important;
 		}
-		
     </style>
 	<!-- Latest compiled and minified CSS -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -63,58 +61,66 @@
   </head>
   <body>
 	<div class="headerContainer">
-	  <div id="logo">&nbsp; ADS  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Logo_Google_2013_Official.svg/220px-Logo_Google_2013_Official.svg.png" alt="Google" style="height:30px;"></div>
+	  <div id="logo"><img src="http://www.maaamet.ee/ADSMenetlusrakendus/img/maLogo.png" alt="maaamet" style="height:60px;">&nbsp; ADS + <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Logo_Google_2013_Official.svg/220px-Logo_Google_2013_Official.svg.png" alt="Google" style="height:20px;"></div>
 
 	  <div id="search" style=" height: 400px"></div>
-	  	  	  <div id="date"></div>
-
-		
+	  	  	  <div id="date"></div>	
 	</div>
 	<div class="mainContainer">
 		<div id="map"></div>
 		<div id="pano"></div>
 	</div>  
     <script>
+	
+var markers = [];
+function deleteMarker(map) {
+  for (var i = 0; i < markers.length; i++) {
+    markers[i].setMap(map);
+  }
+    markers = [];
+}
 	$('#search').removeClass('ui-page-theme-a');
       var proj1 = '+proj=lcc +lat_1=59.33333333333334 +lat_2=58 +lat_0=57.51755393055556 +lon_0=24 +x_0=500000 +y_0=6375000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs',
             proj2 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ';	
 function initialize() {
 $('#search').removeClass('ui-page-theme-a');
   var sv = new google.maps.StreetViewService();
-  window.sv=sv
+  window.sv=sv 
 function processSVData(data, status) {
   if (status === google.maps.StreetViewStatus.OK) {
+  var svwloc=data.location.latLng;
+   var heading = google.maps.geometry.spherical.computeHeading(svwloc,coords);  
     var marker = new google.maps.Marker({
       position: data.location.latLng,
       map: map,
       title: data.location.description,
 	  icon:'http://maps.google.com/mapfiles/ms/icons/purple-dot.png'
     });
-	
-    panorama.setPano(data.location.pano);
+	markers.push(marker);
+    panorama.setPano(data.location.pano);	
     panorama.setPov({
-      heading: 270,
+      heading: heading,
       pitch: 0
     });
     panorama.setVisible(true);
     marker.addListener('click', function() {
       var markerPanoID = data.location.pano;
-      // Set the Pano to use the passed panoID.
       panorama.setPano(markerPanoID);
       panorama.setPov({
-        heading: 270,
+        heading: heading,
         pitch: 0
       });
       panorama.setVisible(true);
     });
   } else {
-    console.error('Street View data not found for this location.');
 	alert('Raadiuses 100 meetrit objekti asukohast StreetView andmestik puudub');
   }
 }
 var inAadress = new InAadress({"mode":"3","container":"search","nocss":false,"appartment":0});
-document.addEventListener('addressSelected', function (e) {      
-        var info = e.detail;
+document.addEventListener('addressSelected', function (e) {    
+	//$(".ui-listview").hide();
+	//$(".ui-listview").show(); 
+        var info = e.detail; 
 		 if (info.length > 0) {
             // usually select first coordinate as it is most precise
             var x = info[0].x;
@@ -128,16 +134,18 @@ document.addEventListener('addressSelected', function (e) {
     position: coords,
 	icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
 });
-// To add the marker to the map, call setMap();
 marker.setMap(map);
+deleteMarker(null);
+markers.push(marker);
 
 sv.getPanorama({location: coords, radius: 100}, processSVData);
 if (typeof coords !== "undefined") {
 sv.getPanoramaByLocation(coords,100, function(data) {
-    console.log(data.imageDate);
 	document.getElementById('date').innerHTML = data.imageDate;
+ 
 	});
-} else{console.log("niga")}
+} else{
+ }
 
 
         }
@@ -148,11 +156,55 @@ sv.getPanoramaByLocation(coords,100, function(data) {
     center: maaamet,
     zoom: 14
   });
+  
+  /*//Creating the WMS layer options.  This code creates the Google imagemaptype options for each wms layer.  In the options the function that calls the individual
+        //wms layer is set
+        var wmsOptions = {
+            getTileUrl: WMSGetTileUrl2,
+            tileSize: new google.maps.Size(256, 256)
+        };
+        //Creating the object to create the ImageMapType that will call the WMS Layer Options.
+        wmsMapType = new google.maps.ImageMapType(wmsOptions);
+//Where the initial map type is set.  This can be adjusted as necessary.  The map name in ' ' indicates the default map viewed when the user
+        //visits the page
+        map.overlayMapTypes.insertAt(0, wmsMapType);
+        //The code that reads in the WMS tiles.  To change the WMS layer the user would update the layers line.  As this is constructed now you need to have this code for each WMS layer.
+        //Check with your Web Map Server to see what are the required components of the address.  You may need to add a couple of segements.  For example, the ArcServer WMS requires
+        //a CRS value which is tacked on to the end of the url.  For an example visit http://www.gisdoctor.com/v3/arcserver_wms.html
+        function WMSGetTileUrl2(coord, zoom) {
+            var proj = map.getProjection();
+            var zfactor = Math.pow(2, zoom);
+            // get Long Lat coordinates
+            var top = proj.fromPointToLatLng(
+                    new google.maps.Point(coord.x * 256 / zfactor, coord.y * 256 / zfactor));
+            var bot = proj.fromPointToLatLng(
+                    new google.maps.Point((coord.x + 1) * 256 / zfactor, (coord.y + 1) * 256 / zfactor));
+            //corrections for the slight shift of the SLP (mapserver)
+            var deltaX = 0.0013;
+            var deltaY = 0.00058;
+            //create the Bounding box string
+            var bbox = (top.lng() + deltaX) + "," + (bot.lat() + deltaY) + "," + (bot.lng() + deltaX) + "," + (top.lat() + deltaY);
+            //base WMS URL
+            var url = 'http://kaart.maaamet.ee/wms/alus-geo?';
+            url += '&REQUEST=GetMap'; //WMS operation
+            url += '&SERVICE=WMS'; //WMS service
+            url += '&VERSION=1.1.1'; //WMS version
+            url += '&LAYERS=MA-ALUS-GEO'; //WMS layers
+            url += '&FORMAT=image/png'; //WMS format
+            url += '&SRS=EPSG:4326'; //set WGS84
+            url += '&BBOX=' + bbox; // set bounding box
+            url += '&WIDTH=256'; //tile size in google
+            url += '&HEIGHT=256';
+            return url; // return URL for the tile
+        }
+  */
+  
+  
   var panorama = new google.maps.StreetViewPanorama(
       document.getElementById('pano'), {
         position: maaamet,
         pov: {
-          heading: 34,
+          heading: 113.51015984986623,
           pitch: 10
         }
       });
@@ -160,6 +212,41 @@ sv.getPanoramaByLocation(coords,100, function(data) {
 	 
   map.setStreetView(panorama);
   $('#search').removeClass('ui-page-theme-a');
+  
+  //var infoWindow = new google.maps.InfoWindow({map: map});
+
+  
+  // Try HTML5 geolocation.
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      var pos = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      };
+
+      //infoWindow.setPosition(pos);
+      //infoWindow.setContent('Location found.');
+      map.setCenter(pos);
+	  
+	  var panoramaGeolocation = new google.maps.StreetViewPanorama(
+      document.getElementById('pano'), {
+        position: pos,
+        pov: {
+          heading: 34,
+          pitch: 10
+        }
+      });
+	  
+	 
+  map.setStreetView(panoramaGeolocation);
+    }, function() {
+      
+    });
+  } else {
+    
+  }
+
+  
 }
 $(document).ready(function(){
     $("[rel=tooltip]").tooltip({ placement: 'right'});

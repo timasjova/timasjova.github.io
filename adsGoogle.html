@@ -49,7 +49,6 @@
     </style>
 	<!-- Latest compiled and minified CSS -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-	<!-- Optional theme -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
 	<!-- Latest compiled and minified JavaScript -->
 	<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
@@ -71,7 +70,6 @@
 		<div id="pano"></div>
 	</div>  
     <script>
-	
 var markers = [];
 function deleteMarker(map) {
   for (var i = 0; i < markers.length; i++) {
@@ -131,32 +129,26 @@ document.addEventListener('addressSelected', function (e) {
 			window.coords=coords;
 			map.setCenter(new google.maps.LatLng(proj4(proj1, proj2, [y, x])[1], proj4(proj1, proj2, [y, x])[0]));			
            var marker = new google.maps.Marker({
-    position: coords,
-	icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+				position: coords,
+				icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
 });
 marker.setMap(map);
 deleteMarker(null);
 markers.push(marker);
-
 sv.getPanorama({location: coords, radius: 100}, processSVData);
 if (typeof coords !== "undefined") {
 sv.getPanoramaByLocation(coords,100, function(data) {
 	document.getElementById('date').innerHTML = data.imageDate;
- 
 	});
 } else{
  }
-
-
         }
 })
-
   var maaamet = {lat: 59.421047261154946, lng: 24.697965935520642};
   var map = new google.maps.Map(document.getElementById('map'), {
     center: maaamet,
     zoom: 14
-  });
-  
+  });  
   /*//Creating the WMS layer options.  This code creates the Google imagemaptype options for each wms layer.  In the options the function that calls the individual
         //wms layer is set
         var wmsOptions = {
@@ -197,61 +189,33 @@ sv.getPanoramaByLocation(coords,100, function(data) {
             url += '&HEIGHT=256';
             return url; // return URL for the tile
         }
-  */
-  
-  
+  */ 
   var panorama = new google.maps.StreetViewPanorama(
       document.getElementById('pano'), {
         position: maaamet,
+		mode:"html5",
         pov: {
           heading: 113.51015984986623,
           pitch: 10
         }
-      });
-	  
-	 
+      });	 
   map.setStreetView(panorama);
   $('#search').removeClass('ui-page-theme-a');
-  
-  //var infoWindow = new google.maps.InfoWindow({map: map});
-
-  
-  // Try HTML5 geolocation.
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(function(position) {
-      var pos = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude
-      };
-
-      //infoWindow.setPosition(pos);
-      //infoWindow.setContent('Location found.');
-      map.setCenter(pos);
-	  
-	  var panoramaGeolocation = new google.maps.StreetViewPanorama(
-      document.getElementById('pano'), {
-        position: pos,
-        pov: {
-          heading: 34,
-          pitch: 10
-        }
-      });
-	  
-	 
+	  var coords= new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+	  window.coords=coords;
+      map.setCenter(coords);
+	  var panoramaGeolocation=sv.getPanorama({location: coords, radius: 100}, processSVData);	 
   map.setStreetView(panoramaGeolocation);
     }, function() {
-      
+     
     });
-  } else {
-    
-  }
-
-  
+  } else {    
+  }  
 }
 $(document).ready(function(){
-    $("[rel=tooltip]").tooltip({ placement: 'right'});
-	
-	  
+    $("[rel=tooltip]").tooltip({ placement: 'right'});	  
 });
     </script>
     <script async defer

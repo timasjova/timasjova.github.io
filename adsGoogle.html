@@ -215,7 +215,11 @@ sv.getPanoramaByLocation(coords,100, function(data) {
   }  
 }
 $(document).ready(function(){
-    $("[rel=tooltip]").tooltip({ placement: 'right'});	  
+    //$("[rel=tooltip]").tooltip({ placement: 'right'});
+ if (window.innerWidth <= 800 && window.innerHeight <= 600){//small window
+        window.location.replace("swiper.html");
+    }
+	
 });
     </script>
     <script async defer

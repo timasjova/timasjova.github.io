@@ -1,53 +1,9 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>ADS+GOOGLE</title>
-    <style>
-		html, body {
-			height: 100%;
-			margin: 0;
-			padding: 0;
-		}
-		#map, #pano {
-			float: left;
-			height: 100%;
-			width: 50%;
-		}
-		.inaadressSearchContainer {
-			background: #fff;
-			z-index: 99999999999999; 
-		}
-		.mainContainer{
-			width:100%;
-			height:80%;
-		}
-		.headerContainer{
-			height:20%;
-			background: #fff;
-		}
-		
-		#search {
-			margin: 0 auto;
-			margin-top: -55px;
-			width: 50%;
-		}
-		#logo{
-			font-size: 30px;
-			padding: 14px 14px 14px 14px  ;
-			color: #2779aa;
-		}
-		
-		#date{
-			position: absolute;
-			right:15px;
-			margin-top: -55px;
-		}
-		.ui-page-theme-a #search{
-			background: #eee !important;
-		}
-    </style>
-	<!-- Latest compiled and minified CSS -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/3.1.2/css/swiper.min.css">
+<!-- Latest compiled and minified CSS -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
 	<!-- Latest compiled and minified JavaScript -->
@@ -57,19 +13,80 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.3.10/proj4.js"></script>
     <script type="text/javascript" src="http://epsg.io/3301.js"></script>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
-  </head>
-  <body>
-	<div class="headerContainer">
-	  <div id="logo"><img src="http://www.maaamet.ee/ADSMenetlusrakendus/img/maLogo.png" alt="maaamet" style="height:60px;">&nbsp; ADS + <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Logo_Google_2013_Official.svg/220px-Logo_Google_2013_Official.svg.png" alt="Google" style="height:20px;"></div>
+ <script src=" https://code.jquery.com/jquery-2.1.4.min.js"></script>
 
-	  <div id="search" style=" height: 400px"></div>
-	  	  	  <div id="date"></div>	
-	</div>
-	<div class="mainContainer">
-		<div id="map"></div>
-		<div id="pano"></div>
-	</div>  
+
+
+<!-- Demo styles -->
+    <style>
+    html, body {
+        position: relative;
+        height: 100%;
+    }
+    body {
+        background: #eee;
+        font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+        font-size: 14px;
+        color:#000;
+        margin: 0;
+        padding: 0;
+    }
+    .swiper-container {
+        width: 100%;
+        height: 100%;
+    }
+    .swiper-slide {
+        text-align: center;
+        font-size: 18px;
+        background: #fff;
+        /* Center slide text vertically */
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-pack: center;
+        -ms-flex-pack: center;
+        -webkit-justify-content: center;
+        justify-content: center;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        -webkit-align-items: center;
+        align-items: center;
+    }
+	#map, #pano {
+			height: 100%;
+		}
+	.inaadressSearchContainer {
+			background: #fff;
+			z-index: 99999999999999; 
+		}
+    </style>
+</head>
+<body>
+    <!-- Swiper -->
+    <div class="swiper-container">
+	<div id="search" style=" height: 400px"></div>
+        <div class="swiper-wrapper">
+	
+            <div id="map" class="swiper-slide"></div>
+            <div id="pano" class="swiper-slide"></div>
+           
+        </div>
+        <!-- Add Pagination -->
+        <div class="swiper-pagination"></div>
+    </div>
+
+    <!-- Swiper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/3.1.2/js/swiper.min.js"></script>
+
+
+    <!-- Initialize Swiper -->
     <script>
+    var swiper = new Swiper('.swiper-container', {
+        pagination: '.swiper-pagination',
+        paginationClickable: true
+    });
+	 
 var markers = [];
 function deleteMarker(map) {
   for (var i = 0; i < markers.length; i++) {
@@ -147,7 +164,15 @@ sv.getPanoramaByLocation(coords,100, function(data) {
   var maaamet = {lat: 59.421047261154946, lng: 24.697965935520642};
   var map = new google.maps.Map(document.getElementById('map'), {
     center: maaamet,
-    zoom: 14
+    zoom: 14,
+	streetViewControlOptions: {
+        position: google.maps.ControlPosition.LEFT_TOP
+    },
+	 zoomControlOptions: {
+        position: google.maps.ControlPosition.LEFT_TOP
+    }
+
+	
   });  
   /*//Creating the WMS layer options.  This code creates the Google imagemaptype options for each wms layer.  In the options the function that calls the individual
         //wms layer is set
@@ -197,7 +222,17 @@ sv.getPanoramaByLocation(coords,100, function(data) {
         pov: {
           heading: 113.51015984986623,
           pitch: 10
-        }
+        },
+		addressControl: false,
+		linksControl: true,
+        panControl: true,
+		panControlOptions: {
+        position: google.maps.ControlPosition.LEFT_TOP
+    },
+
+	 zoomControlOptions: {
+        position: google.maps.ControlPosition.LEFT_TOP
+    }
       });	 
   map.setStreetView(panorama);
   $('#search').removeClass('ui-page-theme-a');
@@ -215,23 +250,19 @@ sv.getPanoramaByLocation(coords,100, function(data) {
   }  
 }
 $(document).ready(function(){
-    //$("[rel=tooltip]").tooltip({ placement: 'right'});
- if( navigator.userAgent.match(/Android/i)
- || navigator.userAgent.match(/webOS/i)
- || navigator.userAgent.match(/iPhone/i)
- || navigator.userAgent.match(/iPad/i)
- || navigator.userAgent.match(/iPod/i)
- || navigator.userAgent.match(/BlackBerry/i)
- || navigator.userAgent.match(/Windows Phone/i)
- ){//small window
-        window.location.replace("swiper.html");
-    }
+    //$("[rel=tooltip]").tooltip({ placement: 'right'});	
+
 	
 });
+	
+	
+	
+	
+	
+	
     </script>
-    <script async defer
+	<script async defer
         src="https://maps.googleapis.com/maps/api/js?signed_in=true&callback=initialize">
     </script>
-  </body>
-</html>
-
+</body>
+</html> 

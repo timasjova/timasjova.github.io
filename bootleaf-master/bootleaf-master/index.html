@@ -39,7 +39,7 @@
           <form class="navbar-form navbar-right" role="search">
             <div class="form-group has-feedback">
                 <!--/<input id="searchbox" type="text" placeholder="Search" class="form-control" >-->
-				<div class="panel panel-default" style="padding:10px"><div id="search"></div></div>
+				<div id="search"></div>
             </div>
           </form>
           
@@ -283,9 +283,9 @@ document.addEventListener('addressSelected', function (e) {
     map.getView().setZoom(8);
     var wms = new ol.layer.Image({
         source: new ol.source.ImageWMS({
-            url: 'http://kaart.maaamet.ee/wms/alus?',
+            url: 'http://kaart.maaamet.ee/wms/kaart?',
             params: {
-                LAYERS: 'MA-ALUS',
+                LAYERS: 'MA-KAART',
                 VERSION: '1.1.1'
             }
         })

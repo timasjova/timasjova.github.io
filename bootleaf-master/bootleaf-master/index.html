@@ -15,7 +15,7 @@
 <link rel="stylesheet" href="http://openlayers.org/en/v3.2.1/css/ol.css" type="text/css">
     <script src="http://openlayers.org/en/v3.2.1/build/ol.js" type="text/javascript"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.3.10/proj4.js"></script>
-    <script type="text/javascript" src="http://epsg.io/3301.js"></script>
+	<script type="text/javascript" src="ajax-cross-origin/jquery.ajax-cross-origin.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="assets/css/app.css">
@@ -27,6 +27,30 @@
   </head>
 
   <body>
+  
+  
+  
+  <div  id="info" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Modal title</h4>
+      </div>
+      <div class="modal-body" id="infoBody">
+        <p>One fine body&hellip;</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+  
+  
+  
+  
     <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
       <div class="container-fluid">
         <div class="navbar-header">
@@ -45,7 +69,7 @@
     </div>
 
     <div id="container">
-    
+    <div id=info></div>
     <div id="map" class="full-map"></div>
 	<div id="location" class="marker"><span class="icon-arrow-up"></span></div>
     </div>
@@ -235,10 +259,56 @@
 	<script>
 	var inAadress = new InAadress({"mode":"3","container":"search","nocss":false,"appartment":0});
 document.addEventListener('addressSelected', function (e) {    
-	
+	if (typeof window.searchAdrVectorLayer === "object") {
+            map.removeLayer(window.searchAdrVectorLayer);
+        }
         var info = e.detail; 
 		console.log(info)
+		$(".navbar-collapse").collapse("toggle");
+		
+		
+		if (info.length > 0) {
+            // usually select first coordinate as it is most precise
+            var x = info[0].x;
+            x = parseFloat(x);
+            var y = info[0].y;
+            y = parseFloat(y);
+            var address = info[0].aadress;
+            var coordinates = [y, x];
+            map.getView().setCenter(coordinates);
+            map.getView().setZoom(11);
+            inAadress.setAddress(address);
+            inAadress.hideResult();
+            var searchAdrFeature = new ol.Feature({
+                geometry: new ol.geom.Point([y, x]),
+                name: address
+            });
+            var iconStyle = new ol.style.Style({
+                image: new ol.style.Icon(({
+                    anchor: [1, 1],
+                    opacity: 1,
+                    src: 'img/marker_34_green.png'
+                }))
+            });
+            var searchAdrVectorSource = new ol.source.Vector({
+            });
+            window.searchAdrVectorSource = searchAdrVectorSource;
+            var startSourceSize = searchAdrVectorSource.getFeatures().length;
+            for (var i = 0, ii = startSourceSize; i < ii; i++) {
+                searchAdrVectorSource.removeFeature(searchAdrVectorSource.getFeatures()[0])
+            }
+            searchAdrVectorSource.addFeature(searchAdrFeature);
+            var searchAdrVectorLayer = new ol.layer.Vector({
+                source: searchAdrVectorSource,
+                style: iconStyle
+            });
+            window.searchAdrVectorLayer = searchAdrVectorLayer;
+            map.addLayer(window.searchAdrVectorLayer);
+        }
+		
 });
+
+
 
 
     var start = performance.now();
@@ -288,6 +358,40 @@ document.addEventListener('addressSelected', function (e) {
         })
     });
     map.addLayer(wms);
+	var ads_wmsSource = new ol.source.ImageWMS({
+			url: 'http://kaart.maaamet.ee/wms/aadressid?',
+			params: {
+                LAYERS: 'MA-AADR',
+                VERSION: '1.1.1'
+            }
+		});
+	
+	
+	var ads_wms = new ol.layer.Image({
+          source: ads_wmsSource
+    });
+    map.addLayer(ads_wms);
+	
+	
+	map.on('singleclick', function(evt) {
+	document.getElementById('infoBody').innerHTML = '';
+			var viewResolution = (view.getResolution());
+			
+			var url = ads_wmsSource.getGetFeatureInfoUrl(
+				evt.coordinate, viewResolution, 'EPSG:3301',
+					{'INFO_FORMAT': 'text/plain'});
+					url = url.replace("QUERY_LAYERS=MA-AADR", "QUERY_LAYERS=ads_cu,ads_hoone,ads_vk,ads_lp_punkt,ads_lp_joon,ads_aadr,eki_kohanimed,vi_kohanimed,asum,linnaosa,nimeobjekt_endine,nimeobjekt,adminkeskus");
+					
+					
+				if (url) {
+				$('#info').modal()
+    document.getElementById('infoBody').innerHTML =
+        '<iframe  src="' + url + '"></iframe>';
+  }
+});
+	
+	
+	
 	map.addLayer(trackLayer);
   
 //set up the geolocation api to track our position

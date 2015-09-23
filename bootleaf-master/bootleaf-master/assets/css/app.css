@@ -3,6 +3,10 @@ html, body, #container {
   width: 100%;
   overflow: hidden;
 }
+.inaadressSearchContainer {
+			
+			z-index: 99999999999999; 
+		}
 body {
   padding-top: 50px;
 }
@@ -85,8 +89,12 @@ input[type="radio"], input[type="checkbox"] {
   color: #FFFFFF;
 }
 .navbar-collapse.in {
+	    overflow: auto;
   overflow-y: hidden;
-  height: 50px; 
+    overflow-x: hidden;
+
+  height: 100vh;
+  
   background: white;
 }
 .navbar-header .navbar-icon-container {

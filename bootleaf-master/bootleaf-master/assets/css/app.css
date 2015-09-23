@@ -86,6 +86,8 @@ input[type="radio"], input[type="checkbox"] {
 }
 .navbar-collapse.in {
   overflow-y: hidden;
+  height: 100px; 
+  
 }
 .navbar-header .navbar-icon-container {
   margin-right: 15px;

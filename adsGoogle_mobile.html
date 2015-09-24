@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Test</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/3.1.2/css/swiper.min.css">
+	<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="http://inaadress.maaamet.ee/inaadress/js/inaadress.min.js"></script>
+<link rel="stylesheet" href="http://openlayers.org/en/v3.2.1/css/ol.css" type="text/css">
+    <script src="http://openlayers.org/en/v3.2.1/build/ol.js" type="text/javascript"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.3.10/proj4.js"></script>
+	<script type="text/javascript" src="ajax-cross-origin/jquery.ajax-cross-origin.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/css/app.css">
+    <link rel="apple-touch-icon" sizes="76x76" href="assets/img/favicon-76.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="assets/img/favicon-120.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="assets/img/favicon-152.png">
+    <link rel="icon" sizes="196x196" href="assets/img/favicon-196.png">
+    <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
+	
+	
+	
+	<style>
+   
+   
+    .swiper-container {
+        width: 100%;
+        height: 100%;
+    }
+	 .swiper-wrapper {
+        
+        height: 100%;
+    }
+    .swiper-slide {
+        text-align: center;
+        font-size: 18px;
+        background: #fff;
+        /* Center slide text vertically */
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-pack: center;
+        -ms-flex-pack: center;
+        -webkit-justify-content: center;
+        justify-content: center;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        -webkit-align-items: center;
+        align-items: center;
+    }
+	#map1, #pano1 {
+			height: 100%;
+		}
+		#map1 {
+			background: green;
+		}
+	
+    </style>
+	
+  </head>
+  <body>
+  
+  <div  id="info" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Info</h4>
+      </div>
+      <div class="modal-body" id="infoBody">
+        <p></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+  
+  
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <div class="navbar-icon-container">
+            <a href="#" class="navbar-icon pull-right visible-xs" id="nav-btn"><i class="fa fa-bars fa-lg white"></i></a>
+          </div>
+          <a class="navbar-brand" href="#">Test</a>
+        </div>
+        <div class="navbar-collapse collapse">
+		  <div id="search" style="padding-bottom: 20px"></div>
+            <div class="form-group has-feedback">
+            </div>
+          
+        </div>
+      </div>
+    </div>
+	
+	 <!-- Swiper -->
+    <div class="swiper-container">
+	
+        <div class="swiper-wrapper">
+	
+            <div id="map" class="swiper-slide"></div>
+            <div id="pano" class="swiper-slide"></div>
+           
+        </div>
+        <!-- Add Pagination -->
+        <div class="swiper-pagination"></div>
+    </div>
+
+    <!-- Swiper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/3.1.2/js/swiper.min.js"></script>
+
+	
+	
+	
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.5/typeahead.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/3.0.3/handlebars.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.1.1/list.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.js"></script>
+    <script src="https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/leaflet.markercluster.js"></script>
+    <script src="https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-locatecontrol/v0.43.0/L.Control.Locate.min.js"></script>
+    <script src="assets/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol.js"></script>
+    <script src="assets/js/app.js"></script>
+	
+	<script>
+	  var swiper = new Swiper('.swiper-container', {
+        pagination: '.swiper-pagination',
+        paginationClickable: true
+    });
+	 
+var markers = [];
+function deleteMarker(map) {
+  for (var i = 0; i < markers.length; i++) {
+    markers[i].setMap(map);
+  }
+    markers = [];
+}
+	$('#search').removeClass('ui-page-theme-a');
+      var proj1 = '+proj=lcc +lat_1=59.33333333333334 +lat_2=58 +lat_0=57.51755393055556 +lon_0=24 +x_0=500000 +y_0=6375000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs',
+            proj2 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ';	
+function initialize() {
+$('#search').removeClass('ui-page-theme-a');
+  var sv = new google.maps.StreetViewService();
+  window.sv=sv 
+function processSVData(data, status) {
+  if (status === google.maps.StreetViewStatus.OK) {
+  var svwloc=data.location.latLng;
+   var heading = google.maps.geometry.spherical.computeHeading(svwloc,coords);  
+    var marker = new google.maps.Marker({
+      position: data.location.latLng,
+      map: map,
+      title: data.location.description,
+	  icon:'http://maps.google.com/mapfiles/ms/icons/purple-dot.png'
+    });
+	markers.push(marker);
+    panorama.setPano(data.location.pano);	
+    panorama.setPov({
+      heading: heading,
+      pitch: 0
+    });
+    panorama.setVisible(true);
+    marker.addListener('click', function() {
+      var markerPanoID = data.location.pano;
+      panorama.setPano(markerPanoID);
+      panorama.setPov({
+        heading: heading,
+        pitch: 0
+      });
+      panorama.setVisible(true);
+    });
+  } else {
+	alert('Raadiuses 100 meetrit objekti asukohast StreetView andmestik puudub');
+  }
+}
+var inAadress = new InAadress({"mode":"3","container":"search","nocss":false,"appartment":0});
+document.addEventListener('addressSelected', function (e) {    
+	//$(".ui-listview").hide();
+	//$(".ui-listview").show(); 
+        var info = e.detail; 
+		 if (info.length > 0) {
+            // usually select first coordinate as it is most precise
+            var x = info[0].x;
+            x = parseFloat(x);
+            var y = info[0].y;
+            y = parseFloat(y);
+			var coords=new google.maps.LatLng(proj4(proj1, proj2, [y, x])[1], proj4(proj1, proj2, [y, x])[0]);
+			window.coords=coords;
+			map.setCenter(new google.maps.LatLng(proj4(proj1, proj2, [y, x])[1], proj4(proj1, proj2, [y, x])[0]));			
+           var marker = new google.maps.Marker({
+				position: coords,
+				icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+});
+marker.setMap(map);
+deleteMarker(null);
+markers.push(marker);
+sv.getPanorama({location: coords, radius: 100}, processSVData);
+if (typeof coords !== "undefined") {
+sv.getPanoramaByLocation(coords,100, function(data) {
+	document.getElementById('date').innerHTML = data.imageDate;
+	});
+} else{
+ }
+        }
+})
+  var maaamet = {lat: 59.421047261154946, lng: 24.697965935520642};
+  var map = new google.maps.Map(document.getElementById('map'), {
+    center: maaamet,
+    zoom: 14,
+	streetViewControlOptions: {
+        position: google.maps.ControlPosition.LEFT_TOP
+    },
+	 zoomControlOptions: {
+        position: google.maps.ControlPosition.LEFT_TOP
+    }
+
+	
+  });  
+  var panorama = new google.maps.StreetViewPanorama(
+      document.getElementById('pano'), {
+        position: maaamet,
+		mode:"html5",
+        pov: {
+          heading: 113.51015984986623,
+          pitch: 10
+        },
+		addressControl: false,
+		linksControl: true,
+        panControl: true,
+		panControlOptions: {
+        position: google.maps.ControlPosition.LEFT_TOP
+    },
+
+	 zoomControlOptions: {
+        position: google.maps.ControlPosition.LEFT_TOP
+    }
+      });	 
+  map.setStreetView(panorama);
+  $('#search').removeClass('ui-page-theme-a');
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+	  var coords= new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+	  window.coords=coords;
+      map.setCenter(coords);
+	  var panoramaGeolocation=sv.getPanorama({location: coords, radius: 100}, processSVData);	 
+  map.setStreetView(panoramaGeolocation);
+    }, function() {
+     
+    });
+  } else {    
+  }  
+}
+$(document).ready(function(){
+    //$("[rel=tooltip]").tooltip({ placement: 'right'});	
+
+	
+});
+
+	</script>
+	<script async defer
+        src="https://maps.googleapis.com/maps/api/js?signed_in=true&callback=initialize">
+    </script>
+  </body>
+</html>

@@ -72,8 +72,10 @@ input[type="radio"], input[type="checkbox"] {
 }
 .navbar .navbar-brand {
   font-weight: bold;
-  font-size: 25px;
+  font-size: 8px;
   color: #FFFFFF;
+  padding-left:10px;
+  padding-top: 0px;
 }
 .navbar-collapse.in {
 	    overflow: auto;
@@ -141,7 +143,7 @@ input[type="radio"], input[type="checkbox"] {
 }
 @media (max-width: 992px) {
   .navbar .navbar-brand {
-    font-size: 18px;
+    font-size: 10px;
   }
 }
 @media (max-width: 767px){

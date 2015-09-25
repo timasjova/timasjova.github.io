@@ -27,15 +27,6 @@ input[type="radio"], input[type="checkbox"] {
   height: 100%;
   box-shadow: 0 0 10px rgba(0,0,0,0.5);
 }
-#loading {
-  position: absolute;
-  width: 220px;
-  height: 19px;
-  top: 50%;
-  left: 50%;
-  margin: -10px 0 0 -110px;
-  z-index: 20001;
-}
 #features {
   margin: 0px;
   border: none;
@@ -141,12 +132,12 @@ input[type="radio"], input[type="checkbox"] {
   line-height: 34px;
   text-align: center;
 }
-@media (max-width: 992px) {
+@media (max-width: 1024px) {
   .navbar .navbar-brand {
     font-size: 10px;
   }
 }
-@media (max-width: 767px){
+@media (max-width: 1024px){
   #sidebar {
     display: none;
   }

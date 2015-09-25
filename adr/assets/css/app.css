@@ -10,6 +10,27 @@ html, body, #container {
 body {
   padding-top: 50px;
 }
+
+#infoModal { 
+    position: fixed; 
+    top: 3%; 
+    right: 3%; 
+    left: 3%; 
+    width: auto; 
+    margin: 0; 
+}
+.modal-body { 
+    height: 60%; 
+}
+
+.modal-body { 
+    max-height: 350px; 
+    padding: 15px; 
+    overflow-y: auto; 
+    -webkit-overflow-scrolling: touch; 
+ }
+
+
 input[type="radio"], input[type="checkbox"] {
   margin: 0;
 }
@@ -22,6 +43,12 @@ input[type="radio"], input[type="checkbox"] {
     -moz-transition: all 0.25s ease-out;
     transition: all 0.25s ease-out;
 }
+
+
+#iframe {
+    width: 100%;
+    border: medium none;
+}	
 #map {
   width: auto;
   height: 100%;
@@ -139,12 +166,12 @@ input[type="radio"], input[type="checkbox"] {
   line-height: 34px;
   text-align: center;
 }
-@media (max-width: 992px) {
+@media (max-width: 1050px) {
   .navbar .navbar-brand {
     font-size: 18px;
   }
 }
-@media (max-width: 767px){
+@media (max-width: 1050px){
   #sidebar {
     display: none;
   }

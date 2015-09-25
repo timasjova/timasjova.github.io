@@ -26,7 +26,7 @@
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
   </head>
   <body>
-  <div  id="info" class="modal fade">
+  <div  id="infoModal" class="modal fade">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -37,7 +37,7 @@
         <p></p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Sule</button>
       </div>
     </div>
   </div>
@@ -206,9 +206,9 @@ document.addEventListener('addressSelected', function (e) {
 					
 					
 				if (url) {
-				$('#info').modal()
+				$('#infoModal').modal()
     document.getElementById('infoBody').innerHTML =
-        '<iframe seamless src="' + url + '"></iframe>';
+        '<iframe id="iframe" seamless src="' + url + '"></iframe>';
   }
 });
 	

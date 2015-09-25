@@ -98,7 +98,7 @@ document.addEventListener('addressSelected', function (e) {
             var address = info[0].aadress;
             var coordinates = [y, x];
             map.getView().setCenter(coordinates);
-            map.getView().setZoom(11);
+            map.getView().setZoom(17);
             inAadress.setAddress(address);
             inAadress.hideResult();
             var searchAdrFeature = new ol.Feature({
@@ -141,24 +141,24 @@ document.addEventListener('addressSelected', function (e) {
 	
 	
 	// create a style to display our position history (track)
-      var trackStyle = new ol.style.Style({
+      /*var trackStyle = new ol.style.Style({
         stroke: new ol.style.Stroke({
           color: 'rgba(0,0,255,1.0)',
           width: 15,
           lineCap: 'round'
         })
-      });
+      });*/
       // use a single feature with a linestring geometry to display our track
-      var trackFeature = new ol.Feature({
+      /*var trackFeature = new ol.Feature({
         geometry: new ol.geom.LineString([])
-      });
-      // we'll need a vector layer to render it
+      });*/
+      /* we'll need a vector layer to render it
       var trackLayer = new ol.layer.Vector({
         source: new ol.source.Vector({
           features: [trackFeature]
         }),
         style: trackStyle
-      });
+      });*/
 	
 	var view = new ol.View({
         center: [550000, 6520000],
@@ -220,7 +220,7 @@ document.addEventListener('addressSelected', function (e) {
       var geolocation = new ol.Geolocation({
         tracking: true
       });
-      // bind the view's projection
+      /* bind the view's projection
       geolocation.bindTo('projection', view);
       // when we get a position update, add the coordinate to the track's
       // geometry and recenter the view
@@ -234,8 +234,8 @@ document.addEventListener('addressSelected', function (e) {
         element: document.getElementById('location'),
         positioning: 'center-center'
       });
-      map.addOverlay(marker);
-      marker.bindTo('position', geolocation);
+      map.addOverlay(marker);*/
+      /*marker.bindTo('position', geolocation);
       // rotate the view to match the device orientation
       var deviceOrientation = new ol.DeviceOrientation({
         tracking: true
@@ -244,7 +244,7 @@ document.addEventListener('addressSelected', function (e) {
       function onChangeHeading(event) {
         var heading = event.target.getHeading();
         view.setRotation(-heading);
-      }
+      }*/
 
 
 	</script>

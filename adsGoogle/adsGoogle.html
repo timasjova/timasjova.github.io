@@ -135,9 +135,6 @@
       window.inAadress = inAadress;
       document.addEventListener('addressSelected', function(e) {
         inAadress.hideResult();
-        console.log(e)
-        var aaa=e;
-        window.aaa=aaa;
         var aadress = e.detail[0].aadress;
         aadress = aadress.split(", ").reverse().join(", ");
         inAadress.setAddress(aadress);
@@ -162,8 +159,6 @@
             var latitude = event.latLng.lat();
             var longitude = event.latLng.lng();
           }); //end addListener
-
-
           marker.setMap(map);
           deleteMarker(null);
           markers.push(marker);
@@ -182,11 +177,9 @@
         lat: 59.421047261154946,
         lng: 24.697965935520642
       };
-
       sv.getPanoramaByLocation(maaamet, 100, function(data) {
           document.getElementById('date').innerHTML = data.imageDate;
       });
-
       var map = new google.maps.Map(document.getElementById('map'), {
         center: maaamet,
         zoom: 16
@@ -234,8 +227,6 @@
         return url; // return URL for the tile
       }
       */
-
-
       var panorama = new google.maps.StreetViewPanorama(
         document.getElementById('pano'), {
           position: maaamet,
@@ -252,7 +243,6 @@
             document.getElementById('date').innerHTML = data.imageDate;
         });
     });
-
       google.maps.event.addListener(map, 'click', function(event) {
         var latitude = event.latLng.lat();
         var longitude = event.latLng.lng();
@@ -262,7 +252,7 @@
         var x = lest[1].toString();
         x = parseFloat(x).toFixed(1);
         y = parseFloat(y).toFixed(1);
-
+        
         var request = 'http://xgis.maaamet.ee/adsavalik/adsobjektid?x=' + x + '&y=' + y + '&ulatus=10&liik=CU';
 
         $.get(request, function(data) {

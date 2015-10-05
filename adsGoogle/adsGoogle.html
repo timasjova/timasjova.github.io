@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>ADS+GOOGLE</title>
+  <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    #map,
+    #pano {
+      float: left;
+      height: 100%;
+      width: 50%;
+    }
+
+    .inaadressSearchContainer {
+      background: #fff;
+      z-index: 99999999999999;
+    }
+
+    .mainContainer {
+      width: 100%;
+      height: 80%;
+    }
+
+    .headerContainer {
+      height: 20%;
+      background: #fff;
+    }
+
+    #search {
+      margin: 0 auto;
+      margin-top: -55px;
+      width: 50%;
+    }
+
+    #logo {
+      font-size: 30px;
+      padding: 14px 14px 14px 14px;
+      color: #2779aa;
+    }
+
+    #date {
+      position: absolute;
+      right: 15px;
+      margin-top: -55px;
+    }
+
+    .ui-page-theme-a #search {
+      background: #eee !important;
+    }
+  </style>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="http://inaadress.maaamet.ee/inaadress/js/inaadress.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.3.10/proj4.js"></script>
+  <script type="text/javascript" src="http://epsg.io/3301.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+</head>
+
+<body>
+  <div class="headerContainer">
+    <div id="logo"><img src="assets/img/0_maa-amet_vapp_est_78px.png" alt="maaamet" style="height:60px;">&nbsp; ADS + <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Logo_Google_2013_Official.svg/220px-Logo_Google_2013_Official.svg.png"
+      alt="Google" style="height:20px;"></div>
+    <div id="search" style=" height: 400px"></div>
+    <div id="date"></div>
+  </div>
+  <div class="mainContainer">
+    <div id="map"></div>
+    <div id="pano"></div>
+  </div>
+  <script>
+    var markers = [];
+    function deleteMarker(map) {
+      for (var i = 0; i < markers.length; i++) {
+        markers[i].setMap(map);
+      }
+      markers = [];
+    }
+    $('#search').removeClass('ui-page-theme-a');
+    var proj1 = '+proj=lcc +lat_1=59.33333333333334 +lat_2=58 +lat_0=57.51755393055556 +lon_0=24 +x_0=500000 +y_0=6375000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs',
+      proj2 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ';
+    function initialize() {
+      $('#search').removeClass('ui-page-theme-a');
+      var sv = new google.maps.StreetViewService();
+      window.sv = sv
+      function processSVData(data, status) {
+        if (status === google.maps.StreetViewStatus.OK) {
+          var svwloc = data.location.latLng;
+          var heading = google.maps.geometry.spherical.computeHeading(svwloc, coords);
+          var marker = new google.maps.Marker({
+            position: data.location.latLng,
+            map: map,
+            title: data.location.description,
+            icon: 'http://maps.google.com/mapfiles/ms/icons/purple-dot.png'
+          });
+          markers.push(marker);
+          panorama.setPano(data.location.pano);
+          panorama.setPov({
+            heading: heading,
+            pitch: 0
+          });
+          panorama.setVisible(true);
+
+          marker.addListener('click', function() {
+            var markerPanoID = data.location.pano;
+            panorama.setPano(markerPanoID);
+            panorama.setPov({
+              heading: heading,
+              pitch: 0
+            });
+            panorama.setVisible(true);
+          });
+        } else {
+          alert('Raadiuses 100 meetrit objekti asukohast StreetView andmestik puudub');
+        }
+      }
+
+
+
+      var inAadress = new InAadress({
+        "mode": "3",
+        "container": "search",
+        "nocss": false,
+        "appartment": 0
+      });
+      window.inAadress = inAadress;
+      document.addEventListener('addressSelected', function(e) {
+        inAadress.hideResult();
+        console.log(e)
+        var aaa=e;
+        window.aaa=aaa;
+        var aadress = e.detail[0].aadress;
+        aadress = aadress.split(", ").reverse().join(", ");
+        inAadress.setAddress(aadress);
+      });
+      document.addEventListener('addressSelected', function(e) {
+        var info = e.detail;
+        if (info.length > 0) {
+          // usually select first coordinate as it is most precise
+          var x = info[0].x;
+          x = parseFloat(x);
+          var y = info[0].y;
+          y = parseFloat(y);
+          var coords = new google.maps.LatLng(proj4(proj1, proj2, [y, x])[1], proj4(proj1, proj2, [y, x])[0]);
+          window.coords = coords;
+          map.setCenter(new google.maps.LatLng(proj4(proj1, proj2, [y, x])[1], proj4(proj1, proj2, [y, x])[0]));
+          var marker = new google.maps.Marker({
+            position: coords,
+            icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+          });
+          //Add listener
+          google.maps.event.addListener(marker, "click", function(event) {
+            var latitude = event.latLng.lat();
+            var longitude = event.latLng.lng();
+          }); //end addListener
+
+
+          marker.setMap(map);
+          deleteMarker(null);
+          markers.push(marker);
+          sv.getPanorama({
+            location: coords,
+            radius: 100
+          }, processSVData);
+          if (typeof coords !== "undefined") {
+            sv.getPanoramaByLocation(coords, 100, function(data) {
+              document.getElementById('date').innerHTML = data.imageDate;
+            });
+          } else {}
+        }
+      })
+      var maaamet = {
+        lat: 59.421047261154946,
+        lng: 24.697965935520642
+      };
+
+      sv.getPanoramaByLocation(maaamet, 100, function(data) {
+          document.getElementById('date').innerHTML = data.imageDate;
+      });
+
+      var map = new google.maps.Map(document.getElementById('map'), {
+        center: maaamet,
+        zoom: 16
+      });
+      /*//Creating the WMS layer options.  This code creates the Google imagemaptype options for each wms layer.  In the options the function that calls the individual
+      //wms layer is set
+      var wmsOptions = {
+        getTileUrl: WMSGetTileUrl2,
+        tileSize: new google.maps.Size(256, 256),
+        name: "OSM"
+      };
+      //Creating the object to create the ImageMapType that will call the WMS Layer Options.
+      wmsMapType = new google.maps.ImageMapType(wmsOptions);
+
+      //Where the initial map type is set.  This can be adjusted as necessary.  The map name in ' ' indicates the default map viewed when the user
+      //visits the page
+      map.overlayMapTypes.insertAt(0, wmsMapType);
+      //The code that reads in the WMS tiles.  To change the WMS layer the user would update the layers line.  As this is constructed now you need to have this code for each WMS layer.
+      //Check with your Web Map Server to see what are the required components of the address.  You may need to add a couple of segements.  For example, the ArcServer WMS requires
+      //a CRS value which is tacked on to the end of the url.  For an example visit http://www.gisdoctor.com/v3/arcserver_wms.html
+      function WMSGetTileUrl2(coord, zoom) {
+        var proj = map.getProjection();
+        var zfactor = Math.pow(2, zoom);
+        // get Long Lat coordinates
+        var top = proj.fromPointToLatLng(
+          new google.maps.Point(coord.x * 256 / zfactor, coord.y * 256 / zfactor));
+        var bot = proj.fromPointToLatLng(
+          new google.maps.Point((coord.x + 1) * 256 / zfactor, (coord.y + 1) * 256 / zfactor));
+        //corrections for the slight shift of the SLP (mapserver)
+        var deltaX = 0.0013;
+        var deltaY = 0.00058;
+        //create the Bounding box string
+        var bbox = (top.lng() + deltaX) + "," + (bot.lat() + deltaY) + "," + (bot.lng() + deltaX) + "," + (top.lat() + deltaY);
+        //base WMS URL
+        var url = 'http://kaart.maaamet.ee/wms/alus-geo?';
+        url += '&REQUEST=GetMap'; //WMS operation
+        url += '&SERVICE=WMS'; //WMS service
+        url += '&VERSION=1.1.1'; //WMS version
+        url += '&LAYERS=of10000,HYBRID'; //WMS layers
+        url += '&FORMAT=image/png'; //WMS format
+        url += '&SRS=EPSG:4326'; //set WGS84
+        url += '&BBOX=' + bbox; // set bounding box
+        url += '&WIDTH=256'; //tile size in google
+        url += '&HEIGHT=256';
+        return url; // return URL for the tile
+      }
+      */
+
+
+      var panorama = new google.maps.StreetViewPanorama(
+        document.getElementById('pano'), {
+          position: maaamet,
+          mode: "html5",
+          pov: {
+            heading: 113.51015984986623,
+            pitch: 10
+          }
+        });
+      map.setStreetView(panorama);
+      panorama.addListener('position_changed', function() {
+        var coords=panorama.getPosition();
+        sv.getPanoramaByLocation(coords, 100, function(data) {
+            document.getElementById('date').innerHTML = data.imageDate;
+        });
+    });
+
+      google.maps.event.addListener(map, 'click', function(event) {
+        var latitude = event.latLng.lat();
+        var longitude = event.latLng.lng();
+        console.log(latitude + ', ' + longitude);
+        var lest = proj4(proj2, proj1, [longitude, latitude]);
+        var y = lest[0].toString();
+        var x = lest[1].toString();
+        x = parseFloat(x).toFixed(1);
+        y = parseFloat(y).toFixed(1);
+
+        var request = 'http://xgis.maaamet.ee/adsavalik/adsobjektid?x=' + x + '&y=' + y + '&ulatus=10&liik=CU';
+
+        $.get(request, function(data) {
+          alert("Load was performed.");
+        });
+      });
+      $('#search').removeClass('ui-page-theme-a');
+
+      //Geolocation
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          var coords = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+          window.coords = coords;
+          map.setCenter(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
+          var marker = new google.maps.Marker({
+            position: coords,
+            icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+          });
+          //Add listener
+          google.maps.event.addListener(marker, "click", function(event) {
+            var latitude = event.latLng.lat();
+            var longitude = event.latLng.lng();
+          }); //end addListener
+
+
+          marker.setMap(map);
+          deleteMarker(null);
+          markers.push(marker);
+          sv.getPanorama({
+            location: coords,
+            radius: 100
+          }, processSVData);
+          if (typeof coords !== "undefined") {
+            sv.getPanoramaByLocation(coords, 100, function(data) {
+              document.getElementById('date').innerHTML = data.imageDate;
+            });
+          };
+
+
+        }, function() {
+
+        });
+
+
+
+      } else {}
+
+
+    }
+    $(document).ready(function() {
+
+      var isMobile = {
+        Android: function() {
+          return navigator.userAgent.match(/Android/i);
+        },
+        BlackBerry: function() {
+          return navigator.userAgent.match(/BlackBerry/i);
+        },
+        iOS: function() {
+          return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+        },
+        Opera: function() {
+          return navigator.userAgent.match(/Opera Mini/i);
+        },
+        Windows: function() {
+          return navigator.userAgent.match(/IEMobile/i) || navigator.userAgent.match(/WPDesktop/i);
+        },
+        any: function() {
+          return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows());
+        }
+      };
+      //$("[rel=tooltip]").tooltip({ placement: 'right'});
+      if (isMobile.any()) { //small window
+        window.location.replace("adsGoogle_mobile.html");
+      }
+    });
+  </script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js??key=AIzaSyAcEJMfgaWuGbZ5AHNl5zwXOyDOd6tLhzw&signed_in=true&callback=initialize">
+  </script>
+</body>
+
+</html>

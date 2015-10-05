@@ -10,7 +10,29 @@ html, body, #container {
 body {
   padding-top: 50px;
 }
+a.show-sidebar {
+  float: left;
+  color:#6d6d6d;
+  outline: none;
+  -webkit-transition: 0.2s;
+  -moz-transition: 0.2s;
+  -o-transition: 0.2s;
+  transition: 0.2s;
+}
 
+a.show-sidebar{
+
+    top: -moz-calc(100% - 65px);
+    top: -webkit-calc(100% - 65px);
+    top: calc(100% - 65px);
+    left: -moz-calc(50% - 33px);
+    left: -webkit-calc(50% - 33px);
+    left: calc(50% - 33px);
+
+}
+a.show-sidebar:hover {
+  color:#000;
+}
 #infoModal { 
     position: fixed; 
     top: 3%; 

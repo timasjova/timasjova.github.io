@@ -79,6 +79,58 @@
     <script src="assets/js/app.js"></script>
 	
 	<script>
+ ////////////CREATE CUSTOM CONTROL UPDATE MAP SIZE//////////
+    /**
+     * Define a namespace for the application.
+     */
+    window.app = {};
+    var app = window.app;
+//
+// Define rotate to north control.
+//
+    /**
+     * @constructor
+     * @extends {ol.control.Control}
+     * @param {Object=} opt_options Control options.
+     */
+    app.updateMapSize = function (opt_options) {
+        var options = opt_options || {};
+        var anchor = document.createElement('a');
+        anchor.href = '#';
+        anchor.className = 'show-sidebar';
+        anchor.innerHTML = '<i class="fa fa-arrow-left"></i>';
+        var this_ = this;
+        var handleUpdateMapSize = function (e) {
+            // prevent #rotate-north anchor from getting appended to the url
+            e.preventDefault();
+            $('div#main').toggleClass('sidebar-show');
+            setTimeout(MessagesMenuWidth, 250);
+            var a = $(anchor).parent().find('i');
+            if (a.attr('class') === 'fa fa-arrow-left') {
+                a.removeClass('fa-arrow-left').addClass('fa-arrow-right');
+            } else {
+                a.removeClass('fa-arrow-right').addClass('fa-arrow-left');
+            }
+            setTimeout(function () {
+                map.updateSize();
+            }, 200);
+        };
+        anchor.addEventListener('click', handleUpdateMapSize, false);
+        anchor.addEventListener('touchstart', handleUpdateMapSize, false);
+        var element = document.createElement('div');
+        element.className = 'rotate-north ol-unselectable';
+        element.appendChild(anchor);
+        ol.control.Control.call(this, {
+            element: element,
+            target: options.target
+        });
+    };
+    ol.inherits(app.updateMapSize, ol.control.Control);
+	
+	
+	
+	
+	
 	var inAadress = new InAadress({"mode":"3","container":"search","nocss":false,"appartment":0});
 document.addEventListener('addressSelected', function (e) {    
 	if (typeof window.searchAdrVectorLayer === "object") {
@@ -166,7 +218,16 @@ document.addEventListener('addressSelected', function (e) {
       });
     var map = new ol.Map({
         target: document.getElementById('map'),
-		view: view
+		view: view,
+		
+        controls: ol.control.defaults({
+            attributionOptions: {
+                collapsed: false,
+                tipLabel: 'Maa-amet'
+            }
+        }).extend([
+            new app.updateMapSize(),
+        ])
       
     });
     map.getView().setZoom(8);

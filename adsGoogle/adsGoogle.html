@@ -252,12 +252,29 @@
         var x = lest[1].toString();
         x = parseFloat(x).toFixed(1);
         y = parseFloat(y).toFixed(1);
-        
+
         var request = 'http://xgis.maaamet.ee/adsavalik/adsobjektid?x=' + x + '&y=' + y + '&ulatus=10&liik=CU';
 
-        $.get(request, function(data) {
-          alert("Load was performed.");
+      //  $.get(request, function(data) {
+        //  alert("Load was performed.");
+      //  });
+
+      $.ajax({
+        type: 'GET',
+        url: request,
+        async: false,
+        jsonpCallback: 'jsonCallback',
+        contentType: "application/json",
+        dataType: 'jsonp',
+        success: function(json) {
+       console.log(111);
+     },
+        error: function(e) {
+          console.log(e.message);
+        }
         });
+
+
       });
       $('#search').removeClass('ui-page-theme-a');
 

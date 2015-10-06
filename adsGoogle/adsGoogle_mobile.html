@@ -249,16 +249,13 @@
             location: coords,
             radius: 100
           }, processSVData);
-          if (typeof coords !== "undefined") {
-            sv.getPanoramaByLocation(coords, 100, function(data) {
-              document.getElementById('date').innerHTML = data.imageDate;
-            });
+        
         }, function() {
         });
       } else {}
     }
   </script>
-  <script async defer src="https://maps.googleapis.com/maps/api/js?signed_in=true&callback=initialize">
+   <script async defer src="https://maps.googleapis.com/maps/api/js??key=AIzaSyAcEJMfgaWuGbZ5AHNl5zwXOyDOd6tLhzw&signed_in=true&callback=initialize">
   </script>
 </body>
 </html>

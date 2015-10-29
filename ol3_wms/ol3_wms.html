@@ -74,31 +74,34 @@ app.ChangeMapControl = function(opt_options) {
 
   };
   var setPhoto = function(e) {
-    this_.getMap().addLayer(tile_photo);
-      this_.getMap().removeLayer(tile_hybrid);
-      this_.getMap().removeLayer(base);
-      this_.getMap().removeLayer(p6hikaart);
+  tile_photo.setVisible(true)
+  tile_hybrid.setVisible(false)
+  base.setVisible(false)
+  p6hikaart.setVisible(false)
+    
   };
   var setHybrid = function(e) {
-      this_.getMap().addLayer(tile_photo);
-      this_.getMap().addLayer(tile_hybrid);
-      this_.getMap().removeLayer(base);
-      this_.getMap().removeLayer(p6hikaart);
+  tile_photo.setVisible(true)
+  tile_hybrid.setVisible(true)
+  base.setVisible(false)
+  p6hikaart.setVisible(false)
+    
   };
   var setBase = function(e) {
-    this_.getMap().removeLayer(tile_photo);
-      this_.getMap().removeLayer(tile_hybrid);
-      this_.getMap().addLayer(base);
-      this_.getMap().removeLayer(p6hikaart);
+		tile_photo.setVisible(false)
+		tile_hybrid.setVisible(false)
+		base.setVisible(true)
+		p6hikaart.setVisible(false)
+    
       if  ( this_.getMap().getView().getZoom()>7){
         this_.getMap().getView().setZoom(5)
       }
       };
   var setP6hi = function(e) {
-      this_.getMap().removeLayer(tile_photo);
-      this_.getMap().removeLayer(tile_hybrid);
-      this_.getMap().removeLayer(base);
-      this_.getMap().addLayer(p6hikaart);
+		tile_photo.setVisible(false)
+		tile_hybrid.setVisible(false)
+		base.setVisible(false)
+		p6hikaart.setVisible(true)
       this_.getMap().getView().setZoom(8)
   };
 
@@ -184,8 +187,6 @@ app.RotateNorthControl = function(opt_options) {
 
 };
 ol.inherits(app.RotateNorthControl, ol.control.Control);
-
-
 
     var start = performance.now();
     proj4.defs("EPSG:3301", "+proj=lcc +lat_1=59.33333333333334 +lat_2=58 +lat_0=57.51755393055556 +lon_0=24 +x_0=500000 +y_0=6375000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");

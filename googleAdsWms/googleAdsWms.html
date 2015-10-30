@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>ADS+GOOGLE</title>
+  <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    #map,
+    #pano,
+	#wms	{
+      float: left;
+      height: 100%;
+      width: 33%;
+    }
+
+    .inaadressSearchContainer {
+      background: #fff;
+      z-index: 1000;
+    }
+
+    .mainContainer {
+      width: 100%;
+      height: 80%;
+    }
+
+    .headerContainer {
+      height: 20%;
+      background: #fff;
+    }
+
+    #search {
+      margin: 0 auto;
+      margin-top: -55px;
+      width: 50%;
+    }
+
+    #logo {
+      font-size: 16px;
+      padding: 14px 14px 14px 14px;
+      color: #2779aa;
+    }
+
+    #date {
+      position: absolute;
+      right: 15px;
+      margin-top: -55px;
+    }
+
+    .ui-page-theme-a #search {
+      background: #eee !important;
+    }
+	.change-map {
+  top: 105px;
+  left: .5em;
+}
+.ol-touch .change-map {
+  top: 120px;
+}
+.rotate-north {
+  top: 70px;
+  left: .5em;
+}
+.ol-touch .rotate-north {
+  top: 85px;
+}
+.modal fade{
+z-index:99999999999999999999999;
+}
+  </style>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="http://openlayers.org/en/v3.2.1/css/ol.css" type="text/css">
+    <script src="http://openlayers.org/en/v3.2.1/build/ol.js" type="text/javascript"></script>
+
+  <link rel='shortcut icon' type='image/x-icon' href='assets/img/favicon.ico'/>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="http://inaadress.maaamet.ee/inaadress/js/inaadress.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.3.10/proj4.js"></script>
+  <script type="text/javascript" src="http://epsg.io/3301.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+</head>
+
+<body>
+
+  <div class="modal fade" id="infoModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">WMS kihid</h4>
+      </div>
+      <div class="modal-body">
+        <ul>
+         <li>! - töötlemata ortofotod</li>
+         <li>O - ortofoto</li>
+         <li>H - hübriidkaart</li>
+         <li>B - baaskaart</li>
+         <li>P - põhikaart</li>
+        </ul>
+
+      </div>
+      <div class="modal-footer">
+
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+  <div class="headerContainer">
+    <div id="logo"><img src="assets/img/0_maa-amet_vapp_est_78px.png" alt="maaamet" style="height:60px;">&nbsp; ADS + <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Logo_Google_2013_Official.svg/220px-Logo_Google_2013_Official.svg.png"
+      alt="Google" style="height:20px;"></div>
+    <div id="search" style=" height: 400px"></div>
+    <div id="date"></div>
+  </div>
+  <div class="mainContainer">
+      <div id="wms"></div>
+
+    <div id="map"></div>
+    <div id="pano"></div>
+  </div>
+  
+  
+  <script>
+  
+  var searchAdrVectorSource = new ol.source.Vector({
+                });
+				window.searchAdrVectorSource=searchAdrVectorSource;
+    var markers = [];
+    function deleteMarker(map) {
+      for (var i = 0; i < markers.length; i++) {
+        markers[i].setMap(map);
+      }
+      markers = [];
+    }
+    $('#search').removeClass('ui-page-theme-a');
+    var proj1 = '+proj=lcc +lat_1=59.33333333333334 +lat_2=58 +lat_0=57.51755393055556 +lon_0=24 +x_0=500000 +y_0=6375000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs',
+      proj2 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ';
+    function initialize() {
+      $('#search').removeClass('ui-page-theme-a');
+      var sv = new google.maps.StreetViewService();
+      window.sv = sv
+      function processSVData(data, status) {
+        if (status === google.maps.StreetViewStatus.OK) {
+          var svwloc = data.location.latLng;
+          var heading = google.maps.geometry.spherical.computeHeading(svwloc, coords);
+          var marker = new google.maps.Marker({
+            position: data.location.latLng,
+            map: map,
+            title: data.location.description,
+            icon: 'http://maps.google.com/mapfiles/ms/icons/purple-dot.png'
+          });
+          markers.push(marker);
+          panorama.setPano(data.location.pano);
+          panorama.setPov({
+            heading: heading,
+            pitch: 0
+          });
+          panorama.setVisible(true);
+
+          marker.addListener('click', function() {
+            var markerPanoID = data.location.pano;
+            panorama.setPano(markerPanoID);
+            panorama.setPov({
+              heading: heading,
+              pitch: 0
+            });
+            panorama.setVisible(true);
+          });
+        } else {
+          alert('Raadiuses 100 meetrit objekti asukohast StreetView andmestik puudub');
+        }
+      }
+
+
+
+      var inAadress = new InAadress({
+        "mode": "3",
+        "container": "search",
+        "nocss": false,
+        "appartment": 0
+      });
+      window.inAadress = inAadress;
+      document.addEventListener('addressSelected', function(e) {
+        inAadress.hideResult();
+        var aadress = e.detail[0].aadress;
+        aadress = aadress.split(", ").reverse().join(", ");
+        inAadress.setAddress(aadress);
+      });
+      document.addEventListener('addressSelected', function(e) {
+        var info = e.detail;
+        if (info.length > 0) {
+          // usually select first coordinate as it is most precise
+          var x = info[0].x;
+          x = parseFloat(x);
+          var y = info[0].y;
+          y = parseFloat(y);
+		  
+                var address = info[0].aadress;
+                var coordinates = [y, x];
+                wmsmap.getView().setCenter(coordinates);
+                wmsmap.getView().setZoom(11);
+                inAadress.setAddress(address);
+                inAadress.hideResult();
+                var searchAdrFeature = new ol.Feature({
+                    geometry: new ol.geom.Point([y, x]),
+                    name: address
+                });
+                var iconStyle = new ol.style.Style({
+                    image: new ol.style.Icon(({
+                        anchor: [1, 1],
+                        opacity: 1,
+                        src: 'http://pegasus.ee/sites/all/modules/custom/mapblock/images/marker.png'
+                    }))
+                });
+                //var searchAdrVectorSource = new ol.source.Vector({
+                //});
+                window.searchAdrVectorSource = searchAdrVectorSource;
+                var startSourceSize = searchAdrVectorSource.getFeatures().length;
+                for (var i = 0, ii = startSourceSize; i < ii; i++) {
+                    searchAdrVectorSource.removeFeature(searchAdrVectorSource.getFeatures()[0])
+                }
+                searchAdrVectorSource.addFeature(searchAdrFeature);
+                var searchAdrVectorLayer = new ol.layer.Vector({
+                    source: searchAdrVectorSource,
+                    style: iconStyle
+                });
+                window.searchAdrVectorLayer = searchAdrVectorLayer;
+                wmsmap.addLayer(window.searchAdrVectorLayer);
+            
+		  
+		  
+		  
+		  
+		  
+		  
+          var coords = new google.maps.LatLng(proj4(proj1, proj2, [y, x])[1], proj4(proj1, proj2, [y, x])[0]);
+          window.coords = coords;
+          map.setCenter(new google.maps.LatLng(proj4(proj1, proj2, [y, x])[1], proj4(proj1, proj2, [y, x])[0]));
+          var marker = new google.maps.Marker({
+            position: coords,
+            icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+          });
+          //Add listener
+          google.maps.event.addListener(marker, "click", function(event) {
+            var latitude = event.latLng.lat();
+            var longitude = event.latLng.lng();
+          }); //end addListener
+          marker.setMap(map);
+          deleteMarker(null);
+          markers.push(marker);
+          sv.getPanorama({
+            location: coords,
+            radius: 100
+          }, processSVData);
+          if (typeof coords !== "undefined") {
+            sv.getPanoramaByLocation(coords, 100, function(data) {
+              document.getElementById('date').innerHTML = data.imageDate;
+            });
+          } else {}
+        }
+      })
+      var maaamet = {
+        lat: 59.421047261154946,
+        lng: 24.697965935520642
+      };
+      sv.getPanoramaByLocation(maaamet, 100, function(data) {
+          document.getElementById('date').innerHTML = data.imageDate;
+      });
+      var map = new google.maps.Map(document.getElementById('map'), {
+        center: maaamet,
+        zoom: 16
+      });
+	  window.map=map;
+	  
+	  
+	  
+		map.addListener('idle', function(){
+		var initZoom= map.getZoom()
+		window.initZoom=initZoom;
+	});
+	
+	map.addListener('zoom_changed', function() {
+		var zoomLevel = map.getZoom();
+		var wmsZoom=wmsmap.getView().getZoom();
+		if (initZoom<zoomLevel){
+		var newWmsZoom=wmsZoom+1;
+		wmsmap.getView().setZoom(newWmsZoom);	
+	}else{
+		var newWmsZoom=wmsZoom-1;
+		wmsmap.getView().setZoom(newWmsZoom);
+		}
+		initZoom= zoomLevel;
+
+});
+	  map.addListener('center_changed', function() {
+		var coordC=map.getCenter();
+		var lest = proj4(proj2, proj1, [coordC.lng(), coordC.lat()]);
+		wmsmap.getView().setCenter(lest);
+		
+		
+		
+		
+		});
+      /*//Creating the WMS layer options.  This code creates the Google imagemaptype options for each wms layer.  In the options the function that calls the individual
+      //wms layer is set
+      var wmsOptions = {
+        getTileUrl: WMSGetTileUrl2,
+        tileSize: new google.maps.Size(256, 256),
+        name: "OSM"
+      };
+      //Creating the object to create the ImageMapType that will call the WMS Layer Options.
+      wmsMapType = new google.maps.ImageMapType(wmsOptions);
+
+      //Where the initial map type is set.  This can be adjusted as necessary.  The map name in ' ' indicates the default map viewed when the user
+      //visits the page
+      map.overlayMapTypes.insertAt(0, wmsMapType);
+      //The code that reads in the WMS tiles.  To change the WMS layer the user would update the layers line.  As this is constructed now you need to have this code for each WMS layer.
+      //Check with your Web Map Server to see what are the required components of the address.  You may need to add a couple of segements.  For example, the ArcServer WMS requires
+      //a CRS value which is tacked on to the end of the url.  For an example visit http://www.gisdoctor.com/v3/arcserver_wms.html
+      function WMSGetTileUrl2(coord, zoom) {
+        var proj = map.getProjection();
+        var zfactor = Math.pow(2, zoom);
+        // get Long Lat coordinates
+        var top = proj.fromPointToLatLng(
+          new google.maps.Point(coord.x * 256 / zfactor, coord.y * 256 / zfactor));
+        var bot = proj.fromPointToLatLng(
+          new google.maps.Point((coord.x + 1) * 256 / zfactor, (coord.y + 1) * 256 / zfactor));
+        //corrections for the slight shift of the SLP (mapserver)
+        var deltaX = 0.0013;
+        var deltaY = 0.00058;
+        //create the Bounding box string
+        var bbox = (top.lng() + deltaX) + "," + (bot.lat() + deltaY) + "," + (bot.lng() + deltaX) + "," + (top.lat() + deltaY);
+        //base WMS URL
+        var url = 'http://kaart.maaamet.ee/wms/alus-geo?';
+        url += '&REQUEST=GetMap'; //WMS operation
+        url += '&SERVICE=WMS'; //WMS service
+        url += '&VERSION=1.1.1'; //WMS version
+        url += '&LAYERS=of10000,HYBRID'; //WMS layers
+        url += '&FORMAT=image/png'; //WMS format
+        url += '&SRS=EPSG:4326'; //set WGS84
+        url += '&BBOX=' + bbox; // set bounding box
+        url += '&WIDTH=256'; //tile size in google
+        url += '&HEIGHT=256';
+        return url; // return URL for the tile
+      }
+      */
+      var panorama = new google.maps.StreetViewPanorama(
+        document.getElementById('pano'), {
+          position: maaamet,
+          mode: "html5",
+          pov: {
+            heading: 113.51015984986623,
+            pitch: 10
+          }
+        });
+      map.setStreetView(panorama);
+      panorama.addListener('position_changed', function() {
+        var coords=panorama.getPosition();
+        sv.getPanoramaByLocation(coords, 100, function(data) {
+            document.getElementById('date').innerHTML = data.imageDate;
+        });
+    });
+      google.maps.event.addListener(map, 'click', function(event) {
+        var latitude = event.latLng.lat();
+        var longitude = event.latLng.lng();
+        var lest = proj4(proj2, proj1, [longitude, latitude]);
+        var y = lest[0].toString();
+        var x = lest[1].toString();
+        x = parseFloat(x).toFixed(1);
+        y = parseFloat(y).toFixed(1);
+
+        var request = 'http://xgis.maaamet.ee/adsavalik/adsobjektid?x=' + x + '&y=' + y + '&ulatus=10&liik=CU';
+
+      //  $.get(request, function(data) {
+        //  alert("Load was performed.");
+      //  });
+
+      $.ajax({
+        type: 'GET',
+        url: request,
+        async: false,
+        jsonpCallback: 'jsonCallback',
+        contentType: "application/json",
+        dataType: 'jsonp',
+        success: function(json) {
+     },
+        error: function(e) {
+        }
+        });
+
+
+      });
+      $('#search').removeClass('ui-page-theme-a');
+
+      //Geolocation
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          var coords = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+          window.coords = coords;
+		  
+		  
+		 var lest= proj4(proj2, proj1, [position.coords.longitude, position.coords.latitude])
+		  var lestX=lest[0]
+		  var lestY=lest[1]
+		 
+                wmsmap.getView().setCenter(lest);
+                
+                var searchAdrFeature = new ol.Feature({
+                    geometry: new ol.geom.Point([lestX, lestY])
+                });
+                var iconStyle = new ol.style.Style({
+                    image: new ol.style.Icon(({
+                        anchor: [1, 1],
+                        opacity: 1,
+                        src: 'http://pegasus.ee/sites/all/modules/custom/mapblock/images/marker.png'
+                    }))
+                });
+                //var searchAdrVectorSource = new ol.source.Vector({
+                //});
+                window.searchAdrVectorSource = searchAdrVectorSource;
+                var startSourceSize = searchAdrVectorSource.getFeatures().length;
+                for (var i = 0, ii = startSourceSize; i < ii; i++) {
+                    searchAdrVectorSource.removeFeature(searchAdrVectorSource.getFeatures()[0])
+                }
+                searchAdrVectorSource.addFeature(searchAdrFeature);
+                var searchAdrVectorLayer = new ol.layer.Vector({
+                    source: searchAdrVectorSource,
+                    style: iconStyle
+                });
+                window.searchAdrVectorLayer = searchAdrVectorLayer;
+                wmsmap.addLayer(window.searchAdrVectorLayer);
+            
+		  
+		  
+		  
+		  
+		  
+		  
+		  
+		  
+          map.setCenter(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
+          var marker = new google.maps.Marker({
+            position: coords,
+            icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+          });
+          //Add listener
+          google.maps.event.addListener(marker, "click", function(event) {
+            var latitude = event.latLng.lat();
+            var longitude = event.latLng.lng();
+          }); //end addListener
+
+
+          marker.setMap(map);
+          deleteMarker(null);
+          markers.push(marker);
+          sv.getPanorama({
+            location: coords,
+            radius: 100
+          }, processSVData);
+          if (typeof coords !== "undefined") {
+            sv.getPanoramaByLocation(coords, 100, function(data) {
+              document.getElementById('date').innerHTML = data.imageDate;
+            });
+          };
+
+
+        }, function() {
+
+        });
+
+
+
+      } else {}
+
+
+    }
+    $(document).ready(function() {
+
+      var isMobile = {
+        Android: function() {
+          return navigator.userAgent.match(/Android/i);
+        },
+        BlackBerry: function() {
+          return navigator.userAgent.match(/BlackBerry/i);
+        },
+        iOS: function() {
+          return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+        },
+        Opera: function() {
+          return navigator.userAgent.match(/Opera Mini/i);
+        },
+        Windows: function() {
+          return navigator.userAgent.match(/IEMobile/i) || navigator.userAgent.match(/WPDesktop/i);
+        },
+        any: function() {
+          return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows());
+        }
+      };
+      //$("[rel=tooltip]").tooltip({ placement: 'right'});
+      if (isMobile.any()) { //small window
+        window.location.replace("adsGoogle_mobile.html");
+      }
+    });
+	
+	
+	
+	
+	
+	window.app = {};
+var app = window.app;
+app.ChangeMapControl = function(opt_options) {
+  var options = opt_options || {};
+
+  var this_ = this;
+  var setNew = function(e) {
+    if(wmsNew.getVisible()){
+      wmsNew.setVisible(false);
+    }else{
+      wmsNew.setVisible(true);
+    }
+
+  };
+  var setPhoto = function(e) {
+  tile_photo.setVisible(true)
+  tile_hybrid.setVisible(false)
+  base.setVisible(false)
+  p6hikaart.setVisible(false)
+
+  };
+  var setHybrid = function(e) {
+  tile_photo.setVisible(true)
+  tile_hybrid.setVisible(true)
+  base.setVisible(false)
+  p6hikaart.setVisible(false)
+
+  };
+  var setBase = function(e) {
+		tile_photo.setVisible(false)
+		tile_hybrid.setVisible(false)
+		base.setVisible(true)
+		p6hikaart.setVisible(false)
+
+      if  ( this_.getMap().getView().getZoom()>7){
+        this_.getMap().getView().setZoom(5)
+      }
+      };
+  var setP6hi = function(e) {
+		tile_photo.setVisible(false)
+		tile_hybrid.setVisible(false)
+		base.setVisible(false)
+		p6hikaart.setVisible(true)
+      this_.getMap().getView().setZoom(8)
+  };
+
+
+  var button_0 = document.createElement('button');
+  button_0.className='uus';
+  button_0.innerHTML = '!';
+
+  var button_1 = document.createElement('button');
+  button_1.className='photo';
+  button_1.innerHTML = 'O';
+
+  var button_2 = document.createElement('button');
+  button_2.className='hybrid';
+  button_2.innerHTML = 'H';
+
+  var button_3 = document.createElement('button');
+  button_3.className='base';
+  button_3.innerHTML = 'B';
+
+  var button_4 = document.createElement('button');
+  button_4.className='p6hi';
+  button_4.innerHTML = 'P';
+
+  button_0.addEventListener('click', setNew, false);
+  button_0.addEventListener('touchstart', setNew, false);
+
+  button_1.addEventListener('click', setPhoto, false);
+  button_1.addEventListener('touchstart', setPhoto, false);
+
+  button_2.addEventListener('click', setHybrid, false);
+  button_2.addEventListener('touchstart', setHybrid, false);
+
+  button_3.addEventListener('click', setBase, false);
+  button_3.addEventListener('touchstart', setBase, false);
+
+  button_4.addEventListener('click', setP6hi, false);
+  button_4.addEventListener('touchstart', setP6hi, false);
+
+
+
+  var element = document.createElement('div');
+  element.className = 'change-map ol-unselectable ol-control';
+  element.appendChild(button_0);
+  element.appendChild(button_1);
+  element.appendChild(button_2);
+  element.appendChild(button_3);
+  element.appendChild(button_4);
+
+
+  ol.control.Control.call(this, {
+    element: element,
+    target: options.target
+  });
+
+};
+ol.inherits(app.ChangeMapControl, ol.control.Control);
+
+
+app.RotateNorthControl = function(opt_options) {
+
+  var options = opt_options || {};
+
+  var button = document.createElement('button');
+  button.innerHTML = '<i class="fa fa-info"></i>';
+
+  var this_ = this;
+  var handleRotateNorth = function(e) {
+      $('#infoModal').appendTo("body").modal('show');
+     };
+
+  button.addEventListener('click', handleRotateNorth, false);
+  button.addEventListener('touchstart', handleRotateNorth, false);
+
+  var element = document.createElement('div');
+  element.className = 'rotate-north ol-unselectable ol-control';
+  element.appendChild(button);
+
+  ol.control.Control.call(this, {
+    element: element,
+    target: options.target
+  });
+
+};
+ol.inherits(app.RotateNorthControl, ol.control.Control);
+
+    var start = performance.now();
+    proj4.defs("EPSG:3301", "+proj=lcc +lat_1=59.33333333333334 +lat_2=58 +lat_0=57.51755393055556 +lon_0=24 +x_0=500000 +y_0=6375000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
+    var projection = ol.proj.get('EPSG:3301');
+
+
+    var base = new ol.layer.Tile({
+        minResolution: 3.90625,
+        source: new ol.source.TileWMS({
+            attributions: [
+                new ol.Attribution({
+                    html: '<a target="_blank" href="http://geoportaal.maaamet.ee/est/Teenused/Avalik-WMS-teenus-p65.html">Basemaps Estonian Land Board</a>&nbsp;&nbsp;&nbsp;&nbsp;'
+                })
+            ],
+            url: 'http://tiles.maaamet.ee/tm/s/?',
+            tileGrid: new ol.tilegrid.TileGrid({
+                origin: [40500, 5993000],
+                resolutions: [4000.0, 2000.0, 1000.0, 500.0, 250.0, 125.0, 62.5, 31.25, 15.625, 7.8125, 3.90625, 1.953125, 0.9765625, 0.48828125]
+            }),
+            params: {
+                LAYERS: 'kaart',
+                TILED: true,
+                VERSION: '1.0.0'
+            }
+        })
+    });
+    window.base = base;
+    p6hikaart = new ol.layer.Tile({
+        maxResolution: 3.90625,
+        source: new ol.source.TileWMS({
+            attributions: [
+                new ol.Attribution({
+                    html: '<a target="_blank" href="http://geoportaal.maaamet.ee/est/Teenused/Avalik-WMS-teenus-p65.html">Basemaps Estonian Land Board</a>&nbsp;&nbsp;&nbsp;&nbsp;'
+                })
+            ],
+            url: 'http://tiles.maaamet.ee/tm/s/?',
+            tileGrid: new ol.tilegrid.TileGrid({
+                origin: [40500, 5993000],
+                resolutions: [4000.0, 2000.0, 1000.0, 500.0, 250.0, 125.0, 62.5, 31.25, 15.625, 7.8125, 3.90625, 1.953125, 0.9765625, 0.48828125]
+            }),
+            params: {
+                LAYERS: 'epk_v',
+                TILED: true,
+                VERSION: '1.0.0'
+            }
+        })
+    });
+    window.p6hikaart = p6hikaart;
+    var tile_hybrid = new ol.layer.Tile({
+        title: "Maa-ameti hübriidkaart 2",
+        maxResolution: 10000,
+        source: new ol.source.TileWMS({
+            url: 'http://tiles.maaamet.ee/tm/s/?',
+            ratio: 1.05,
+            tileGrid: new ol.tilegrid.TileGrid({
+                origin: [40500, 5993000],
+                resolutions: [4000.0, 2000.0, 1000.0, 500.0, 250.0, 125.0, 62.5, 31.25, 15.625, 7.8125, 3.90625, 1.953125, 0.9765625, 0.48828125]
+            }),
+            params: {
+                TILED: true,
+                LAYERS: ['hybriid'],
+                FORMAT: 'image/png',
+                TRANSPARENT: 'false',
+                VERSION: '1.1.1'
+            }
+        })
+    });
+    window.tile_hybrid = tile_hybrid;
+    var tile_photo = new ol.layer.Tile({
+        title: "Maa-ameti fotokaart",
+        maxResolution: 10000,
+        source: new ol.source.TileWMS({
+            attributions: [
+                new ol.Attribution({
+                    html: '<a target="_blank" href="http://geoportaal.maaamet.ee/est/Teenused/Avalik-WMS-teenus-p65.html">Basemaps Estonian Land Board</a>&nbsp;&nbsp;&nbsp;&nbsp;'
+                })
+            ],
+            url: 'http://tiles.maaamet.ee/tm/s/?',
+            ratio: 1.05,
+            tileGrid: new ol.tilegrid.TileGrid({
+                origin: [40500, 5993000],
+                resolutions: [4000.0, 2000.0, 1000.0, 500.0, 250.0, 125.0, 62.5, 31.25, 15.625, 7.8125, 3.90625, 1.953125, 0.9765625, 0.48828125]
+            }),
+            params: {
+                LAYERS: ['foto'],
+                FORMAT: 'image/jpeg',
+                TRANSPARENT: 'false',
+                VERSION: '1.1.1'
+            }
+        })
+    });
+    window.tile_photo = tile_photo;
+
+    var wmsNew = new ol.layer.Image({
+        source: new ol.source.ImageWMS({
+            url: 'http://www.maaamet.ee/rr/wms/of_live/?',
+            params: {
+                LAYERS: 'Maaamet OF Live',
+                VERSION: '1.1.1'
+            }
+        })
+    });
+    window.wmsNew = wmsNew;
+
+	
+
+    var wmsmap = new ol.Map({
+      controls: ol.control.defaults({
+    attributionOptions: /** @type {olx.control.AttributionOptions} */ ({
+      collapsible: false
+    })
+  }).extend([
+    new app.ChangeMapControl(),
+    new app.RotateNorthControl()
+  ]),
+  renderer: 'canvas',
+    layers: [tile_photo, tile_hybrid, base, p6hikaart, wmsNew],
+    target: document.getElementById('wms'),
+        view: new ol.View({
+          center: [539625, 6587225],
+                   resolutions: [500.0, 250.0, 125.0, 62.5, 31.25, 15.625, 7.8125, 3.90625, 1.953125, 0.9765625, 0.48828125],
+          projection: projection
+        })
+    });
+    wmsmap.getView().setZoom(15);
+    wmsNew.setVisible(true);
+	
+	/*var wmsInitZoom=wmsmap.getView().getZoom();
+	window.wmsInitZoom=wmsInitZoom;
+	wmsmap.getView().on('change:resolution', function(){
+		var wmsZoom=wmsmap.getView().getZoom();
+		if(wmsInitZoom<wmsZoom){
+			var newGoogleZoom=initZoom+1;
+			map.setZoom(newGoogleZoom)
+		}else{
+		var newGoogleZoom=initZoom-1;
+			map.setZoom(newGoogleZoom)
+		}
+		wmsInitZoom=wmsZoom;
+	});
+	*/
+	
+	/*wmsmap.on('moveend', function(evt){
+
+			var coordsLest=wmsmap.getView().getCenter();
+			
+			var coords = new google.maps.LatLng(proj4(proj1, proj2, [coordsLest[1], coordsLest[0]])[1], proj4(proj1, proj2, [coordsLest[1], coordsLest[0]])[0]);
+          window.coords = coords;
+          map.setCenter(new google.maps.LatLng(proj4(proj1, proj2, [coordsLest[1], coordsLest[0]])[1], proj4(proj1, proj2, [coordsLest[1], coordsLest[0]])[0]));
+          var marker = new google.maps.Marker({
+            position: coords,
+            icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+          });
+          //Add listener
+          google.maps.event.addListener(marker, "click", function(event) {
+            var latitude = event.latLng.lat();
+            var longitude = event.latLng.lng();
+          }); //end addListener
+          marker.setMap(map);
+          deleteMarker(null);
+          markers.push(marker);
+          sv.getPanorama({
+            location: coords,
+            radius: 100
+          }, processSVData);
+          if (typeof coords !== "undefined") {
+            sv.getPanoramaByLocation(coords, 100, function(data) {
+              document.getElementById('date').innerHTML = data.imageDate;
+            });
+          } else {}
+			
+   
+   });*/
+
+
+
+        $(document).on("click", ".ui-input-clear", function () {
+                if (typeof window.searchAdrVectorLayer === "object") {
+                    wmsmap.removeLayer(window.searchAdrVectorLayer);
+                    var startSourceSize = window.searchAdrVectorSource.getFeatures().length;
+                    for (var i = 0, ii = startSourceSize; i < ii; i++) {
+                        window.searchAdrVectorSource.removeFeature(window.searchAdrVectorSource.getFeatures()[0]);
+                    }
+                }
+				deleteMarker(null)
+            });
+
+
+	
+	
+	
+  </script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js??key=AIzaSyAcEJMfgaWuGbZ5AHNl5zwXOyDOd6tLhzw&callback=initialize">
+  </script>
+</body>
+
+</html>

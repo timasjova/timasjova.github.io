@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="http://openlayers.org/en/v3.2.1/css/ol.css" type="text/css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
     <script src="http://openlayers.org/en/v3.2.1/build/ol.js" type="text/javascript"></script>
+    <script type="text/javascript" src="http://inaadress.maaamet.ee/inaadress/js/inaadress.min.js"></script>
     <script type="text/javascript" src="proj4.js"></script>
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
@@ -30,7 +31,7 @@
 </head>
 <body>
 <div id="map"></div>
-
+ <div class='col-md-4' id="adr"></div>
 
 <div class="modal fade" id="infoModal">
   <div class="modal-dialog">
@@ -78,21 +79,21 @@ app.ChangeMapControl = function(opt_options) {
   tile_hybrid.setVisible(false)
   base.setVisible(false)
   p6hikaart.setVisible(false)
-    
+
   };
   var setHybrid = function(e) {
   tile_photo.setVisible(true)
   tile_hybrid.setVisible(true)
   base.setVisible(false)
   p6hikaart.setVisible(false)
-    
+
   };
   var setBase = function(e) {
 		tile_photo.setVisible(false)
 		tile_hybrid.setVisible(false)
 		base.setVisible(true)
 		p6hikaart.setVisible(false)
-    
+
       if  ( this_.getMap().getView().getZoom()>7){
         this_.getMap().getView().setZoom(5)
       }
@@ -315,10 +316,62 @@ ol.inherits(app.RotateNorthControl, ol.control.Control);
     wmsNew.setVisible(false);
 
 
+    var inAadress = new InAadress({"mode": "3", "container": "adr", "nocss": false, "appartment": 0, lang: {search: "SEARCH", clear: "CLEAR"}});
+        document.addEventListener('addressSelected', function (e) {
+            if (typeof window.searchAdrVectorLayer === "object") {
+                map.removeLayer(window.searchAdrVectorLayer);
+            }
+            var info = e.detail;
+            if (info.length > 0) {
+                // usually select first coordinate as it is most precise
+                var x = info[0].x;
+                x = parseFloat(x);
+                var y = info[0].y;
+                y = parseFloat(y);
+                var address = info[0].aadress;
+                var coordinates = [y, x];
+                map.getView().setCenter(coordinates);
+                map.getView().setZoom(11);
+                inAadress.setAddress(address);
+                inAadress.hideResult();
+                var searchAdrFeature = new ol.Feature({
+                    geometry: new ol.geom.Point([y, x]),
+                    name: address
+                });
+                var iconStyle = new ol.style.Style({
+                    image: new ol.style.Icon(({
+                        anchor: [1, 1],
+                        opacity: 1,
+                        src: 'http://pegasus.ee/sites/all/modules/custom/mapblock/images/marker.png'
+                    }))
+                });
+                var searchAdrVectorSource = new ol.source.Vector({
+                });
+                window.searchAdrVectorSource = searchAdrVectorSource;
+                var startSourceSize = searchAdrVectorSource.getFeatures().length;
+                for (var i = 0, ii = startSourceSize; i < ii; i++) {
+                    searchAdrVectorSource.removeFeature(searchAdrVectorSource.getFeatures()[0])
+                }
+                searchAdrVectorSource.addFeature(searchAdrFeature);
+                var searchAdrVectorLayer = new ol.layer.Vector({
+                    source: searchAdrVectorSource,
+                    style: iconStyle
+                });
+                window.searchAdrVectorLayer = searchAdrVectorLayer;
+                map.addLayer(window.searchAdrVectorLayer);
+            }
+        });
 
 
-
-
+        $(document).on("click", ".ui-input-clear", function () {
+                if (typeof window.searchAdrVectorLayer === "object") {
+                    map.removeLayer(window.searchAdrVectorLayer);
+                    var startSourceSize = window.searchAdrVectorSource.getFeatures().length;
+                    for (var i = 0, ii = startSourceSize; i < ii; i++) {
+                        window.searchAdrVectorSource.removeFeature(window.searchAdrVectorSource.getFeatures()[0]);
+                    }
+                }
+            });
 
 
 

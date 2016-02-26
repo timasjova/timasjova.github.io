@@ -68,10 +68,15 @@
       background: #fff;
     }
 
-    #search {
-      margin: 0 auto;
-      width: 50%;
-    }
+   
+	
+	#search {
+  position: absolute;
+  z-index:1000;
+  margin-top: 20px;
+  margin-left:120px;
+  width:30%
+}
 
     #logo {
       font-size: 16px;
@@ -110,20 +115,21 @@ z-index:99999999999999999999999;
    left: auto;
 }
 
+.modal{
+z-index: 999999 !important;
+}
 .ol-control.ol-zoom{
 
-    top: -moz-calc(100% - 65px);
-    top: -webkit-calc(100% - 65px);
-    top: calc(100% - 65px);
+   
     left: -moz-calc(100% - 33px);
     left: -webkit-calc(100% - 33px);
     left: calc(100% - 33px);
 
 }
 
+#googleButtons{
 
-
-
+}
 
 #home {
     background: #fff url("http://xgis.maaamet.ee/dogisMaaamet/theme/maaamet/img/logo.png") no-repeat scroll 0 0;
@@ -168,11 +174,9 @@ a:hover {
 a:active {
     text-decoration: none;
 }
-#search {
-  position: relative;
-  top: 50%;
-  transform: translateY(+50%);
-  width: 90% !important;
+
+ul.list-group li.list-group-item.clickable {
+cursor:pointer;
 }
 
 
@@ -191,6 +195,11 @@ a:active {
 }
 ul.list-group.clickable li.list-group-item a{
 cursor: pointer !important;
+}
+
+ul.list-group li.list-group-item.clickable a{
+cursor: pointer !important;
+
 }
 
 #infoButton:hover {
@@ -218,6 +227,16 @@ display: flex;
 	#pano{
 	
 	height:100%}
+	
+	.inAdsCopyright {
+    line-height: 0px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    visibility: hidden !important;
+}
+	
+
+	
 
   </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.css">
@@ -336,6 +355,10 @@ display: flex;
 					</ul>
 		
 	 </li>
+	 <li class="list-group-item clickable"><span class="fa fa-question"></span><a href="mailto:ads.abi@maaamet.ee" target="_top">&nbsp;&nbsp;&nbsp;&nbsp;Lisainfot saab Maa-ameti aadressiandmete osakonnast.</a>
+	 	 </li>
+
+	 
 		</ul>
 	
 	
@@ -360,13 +383,13 @@ display: flex;
   
   
   
-  
+  <div id="search" style=" height: 400px"></div>
   
   <div id="a" class="split split-horizontal">
       <div id="c" class="split content">
 	  	   <div class="row">
   <div id="logo" class="col-sm-2"><img src="http://xgis.maaamet.ee/dogisMaaamet/theme/maaamet/img/logo.png" style=" height: 70px" alt="maaamet"</img> </div>
-  <div class="col-sm-7"><div id="search" style=" height: 400px"></div></div>
+  <div class="col-sm-7"></div>
   <div  class="col-sm-2"> <div id="kp"><a>Street-View pildistamise kuupäev</a><div id="date"></div></div></div>
   
 <div id="buttons" class="col-sm-1 verticalLineLeft">
@@ -395,13 +418,10 @@ display: flex;
     <div id="b" class="split split-horizontal">
       <div id="wms" class="split content"></div>
       <div id="map" class="split content">
-	 
+	
 	  </div>
-	  	  <div class="ol-zoom ol-unselectable ol-control">
-<button id="zoomout" class="ol-zoom-in" type="button" title="Zoom in">+</button>
-<button id="zoomin" class="ol-zoom-out" type="button" title="Zoom out">−</button>
-</div>
-	  
+	  	  
+	   
 	  
 	 
     </div>
@@ -410,7 +430,9 @@ display: flex;
   <script>
   
   var zoomChanged=false;
-  
+  var zoomChanged2=false;
+  var zoomChanged3=false;
+
     var homeLocation;
 	  window.homeLocation=homeLocation
   
@@ -418,7 +440,6 @@ display: flex;
   
   
   $("#infoButton").on("click", function () {
-  console.log('ttt')
   $('#layersModal').modal()
   });
   
@@ -595,7 +616,7 @@ display: flex;
         zoom: 16,
 		maxZoom: 17,
 		mapTypeControl: false,
-		zoomControl: false
+		zoomControl: true
       });
 	  window.map=map;
 	  var element2 = document.getElementById('map');
@@ -609,30 +630,34 @@ display: flex;
 		map.addListener('idle', function(){
 		var initZoom= map.getZoom()
 		window.initZoom=initZoom;
-		console.log("init google", initZoom)
 	});
 	
 	
 	/*Google events */
 	
 	map.addListener('zoom_changed', function() {
-	if (zoomChanged==false){
-	console.log(33)
+	if (zoomChanged2==false){
+			zoomChanged2=true;
 		var zoomLevel = map.getZoom();
 		var wmsZoom=wmsmap.getView().getZoom();
 		if (initZoom<zoomLevel){
 		var newWmsZoom=wmsZoom+1;
 		wmsmap.getView().setZoom(newWmsZoom);	
-		zoomChanged=true;
+		wmsInitZoom=newWmsZoom
+
 	}else{
 		var newWmsZoom=wmsZoom-1;
 		wmsmap.getView().setZoom(newWmsZoom);
+		wmsInitZoom=newWmsZoom
+
 		}
 		initZoom= zoomLevel;
-		zoomChanged=true;
-		}else if (zoomChanged==true){
-		console.log(44)
-		zoomChanged=false;
+		}
+
+	else if (zoomChanged2==true){
+		wmsInitZoom=wmsmap.getView().getZoom();
+		initZoom=map.getZoom();
+		zoomChanged2=false;
 		}
 
 });
@@ -647,27 +672,14 @@ display: flex;
 		});
 		
 		
-		function HomeControl(controlDiv, map) {
 
- google.maps.event.addDomListener(zoomout, 'click', function() {
-   var currentZoomLevel = map.getZoom();
-   if(currentZoomLevel != 0){
-     map.setZoom(currentZoomLevel - 1);}     
-  });
+  
 
-   google.maps.event.addDomListener(zoomin, 'click', function() {
-   var currentZoomLevel = map.getZoom();
-   if(currentZoomLevel != 21){
-     map.setZoom(currentZoomLevel + 1);}
-  });
 
-}
 
- // Create the DIV to hold the control and
-  // call the HomeControl() constructor passing
-  // in this DIV.
-  var homeControlDiv = document.createElement('div');
-  var homeControl = new HomeControl(homeControlDiv, map);
+
+
+
 
 		
 		
@@ -1072,30 +1084,35 @@ $('.roadmapGoogle').prop('checked', true);
 	
 	/*OL events*/
 	
+	
+	
 	var wmsInitZoom=wmsmap.getView().getZoom();
 	window.wmsInitZoom=wmsInitZoom;
-	console.log("ol init", wmsInitZoom)
 	
 	
 	
 	wmsmap.getView().on('change:resolution', function(){
-	if(zoomChanged==false){
 	
+	if(zoomChanged2==false){
+				zoomChanged2=true
+
 		var wmsZoom=wmsmap.getView().getZoom();
-		console.log("new ol",wmsZoom)
 		if(wmsInitZoom<wmsZoom){
 			var newGoogleZoom=initZoom+1;
 			map.setZoom(newGoogleZoom)
-			zoomChanged=true
 		}else{
 		var newGoogleZoom=initZoom-1;
 			map.setZoom(newGoogleZoom)
-			zoomChanged=true
 		}
-		wmsInitZoom=wmsZoom;
-		}else if (zoomChanged==true){
+		wmsInitZoom=wmsmap.getView().getZoom();
+		initZoom=map.getZoom()
+		}
+		
+		else if (zoomChanged2==true){
+			wmsInitZoom=wmsmap.getView().getZoom();
+			initZoom=map.getZoom()
 
-		zoomChanged=false
+			zoomChanged2=false
 		}
 	});
 	
@@ -1239,9 +1256,11 @@ new ResizeSensor(element, function() {
 	var menuArea = document.getElementById('c');
 	
 new ResizeSensor(menuArea, function() {
-    if ($('#c').width()<271){
+	var searchBarWidth=$('#search').width()
+	var hideWidth=searchBarWidth+120
+    if ($('#c').width()<hideWidth){
 	$('#search').hide();
-		$('#buttons').hide();
+	$('#buttons').hide();
 	$('#kp').hide();
 
 	}
@@ -1250,7 +1269,7 @@ new ResizeSensor(menuArea, function() {
 	$('#search').show();
 		$('#buttons').show();
 	$('#kp').show();
-	}else if($('#c').width()<682&&$('#c').width()>271){
+	}else if($('#c').width()<682&&$('#c').width()>hideWidth){
 	$('#kp').hide();
 			$('#buttons').hide();
 $('#search').show();
@@ -1285,6 +1304,8 @@ $('#buttons').height($('#c').height())
 				}
 				
             });
+	
+
 	
   </script>
   <script async defer src="https://maps.googleapis.com/maps/api/js??key=AIzaSyAcEJMfgaWuGbZ5AHNl5zwXOyDOd6tLhzw&callback=initialize">

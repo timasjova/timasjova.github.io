@@ -27,6 +27,12 @@
   <link rel="icon" sizes="196x196" href="assets/img/favicon-196.png">
   <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
   <style>
+  
+  .swiper-pagination-bullet {
+    height: 25px !important;
+    width: 25px !important;
+}
+  
     .swiper-container {
       width: 100%;
       height: 100%;
@@ -109,6 +115,14 @@
   <script src="assets/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol.js"></script>
   <script src="assets/js/app.js"></script>
   <script>
+  
+   window.onresize = function(event) {
+	if($('body').width()>600){
+	        window.location.replace("adsStreetView.html");
+
+	}
+};
+  
     var swiper = new Swiper('.swiper-container', {
       pagination: '.swiper-pagination',
       paginationClickable: true

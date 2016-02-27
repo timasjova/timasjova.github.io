@@ -8,6 +8,10 @@
    html, body {
     height: 100%;
   }
+  
+  
+  
+  
 
   body {
     padding: 8px;
@@ -236,7 +240,9 @@ display: flex;
 }
 	
 
-	
+	html body div#a.split.split-horizontal div.gutter.gutter-vertical{
+	cursor:default !important
+	}
 
   </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.css">
@@ -252,8 +258,8 @@ display: flex;
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.3.10/proj4.js"></script>
   <script type="text/javascript" src="http://epsg.io/3301.js"></script>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
-  <script src="ResizeSensor.js"></script>
-  <script src="split.min.js"></script>
+  <script src="assets/js/ResizeSensor.js"></script>
+  <script src="assets/js/split.min.js"></script>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 </head>
@@ -395,9 +401,8 @@ display: flex;
 <div id="buttons" class="col-sm-1 verticalLineLeft">
 
 
-		<i id="infoButton" class="material-icons">menu</i>
-		<br>
-		<i id="homeButton" class="material-icons">gps_fixed</i>
+		<div class="horizontalLine"><i id="infoButton" class="material-icons">menu</i></div>
+		<div><i id="homeButton" class="material-icons">gps_fixed</i></div>
 
 </div>
   
@@ -429,9 +434,52 @@ display: flex;
   
   <script>
   
+  /*window.onresize = function(event) {
+	if($('body').width()<600){
+	        window.location.replace("adsGoogle_mobile.html");
+
+	}
+};*/
+
+
+      $(document).ready(function() {
+	
+	$('#c').css({
+    'overflow': 'hidden',
+   
+});
+	  
+
+      var isMobile = {
+        Android: function() {
+          return navigator.userAgent.match(/Android/i);
+        },
+        BlackBerry: function() {
+          return navigator.userAgent.match(/BlackBerry/i);
+        },
+        iOS: function() {
+          return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+        },
+        Opera: function() {
+          return navigator.userAgent.match(/Opera Mini/i);
+        },
+        Windows: function() {
+          return navigator.userAgent.match(/IEMobile/i) || navigator.userAgent.match(/WPDesktop/i);
+        },
+        any: function() {
+          return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows());
+        }
+      };
+      //$("[rel=tooltip]").tooltip({ placement: 'right'});
+      if (isMobile.any()||$('body').width()<600) { //small window
+        window.location.replace("adsGoogle_mobile.html");
+      }
+    });
+  
+  
+  
   var zoomChanged=false;
   var zoomChanged2=false;
-  var zoomChanged3=false;
 
     var homeLocation;
 	  window.homeLocation=homeLocation
@@ -443,19 +491,35 @@ display: flex;
   $('#layersModal').modal()
   });
   
+
+  
   /*SPLIT JS*/
     Split(['#a', '#b'], {
       gutterSize: 8,
 	  sizes: [60, 40],
       cursor: 'col-resize',
 	  minSize: 150
+
     })
+	
 
     Split(['#c', '#ee'], {
       direction: 'vertical',
       sizes: [15, 85],
       gutterSize: 8,
       cursor: 'row-resize'
+	  ,
+	  onDragStart: function(e) {
+       if(typeof e == 'undefined') {
+		console.log(window.event)
+            e = window.event;
+			e.preventDefault();
+
+        }
+	 
+	  return false
+	  
+      }
 
 	  })
 
@@ -465,6 +529,7 @@ display: flex;
       gutterSize: 8,
       cursor: 'row-resize'
     })
+	
 	
   
   var searchAdrVectorSource = new ol.source.Vector({
@@ -613,8 +678,9 @@ display: flex;
       });
       var map = new google.maps.Map(document.getElementById('map'), {
         center: maaamet,
-        zoom: 16,
+        zoom: 17,
 		maxZoom: 17,
+		minZoom: 7,
 		mapTypeControl: false,
 		zoomControl: true
       });
@@ -910,39 +976,7 @@ addressControl: false
 	});
 
     }
-    $(document).ready(function() {
-	
-	$('#c').css({
-    'overflow': 'hidden',
-   
-});
-	  
 
-      var isMobile = {
-        Android: function() {
-          return navigator.userAgent.match(/Android/i);
-        },
-        BlackBerry: function() {
-          return navigator.userAgent.match(/BlackBerry/i);
-        },
-        iOS: function() {
-          return navigator.userAgent.match(/iPhone|iPad|iPod/i);
-        },
-        Opera: function() {
-          return navigator.userAgent.match(/Opera Mini/i);
-        },
-        Windows: function() {
-          return navigator.userAgent.match(/IEMobile/i) || navigator.userAgent.match(/WPDesktop/i);
-        },
-        any: function() {
-          return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows());
-        }
-      };
-      //$("[rel=tooltip]").tooltip({ placement: 'right'});
-      if (isMobile.any()) { //small window
-        window.location.replace("adsGoogle_mobile.html");
-      }
-    });
 	
 	
 	
@@ -1234,6 +1268,8 @@ $('.roadmapGoogle').prop('checked', true);
    
    
    
+   
+   
 
 
         $(document).on("click", ".ui-input-clear", function () {
@@ -1254,10 +1290,16 @@ new ResizeSensor(element, function() {
 });
 
 	var menuArea = document.getElementById('c');
-	
+	var initialMenuHeight=$('#c').height()
 new ResizeSensor(menuArea, function() {
 	var searchBarWidth=$('#search').width()
 	var hideWidth=searchBarWidth+120
+	
+	/*if ($('#c').height()>initialMenuHeight){
+	$('#c').height(initialMenuHeight)
+	}*/
+	
+	
     if ($('#c').width()<hideWidth){
 	$('#search').hide();
 	$('#buttons').hide();

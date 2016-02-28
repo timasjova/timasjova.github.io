@@ -79,6 +79,7 @@ body {
     font-size: 16px;
     padding: 14px 14px 14px 14px;
     color: #2779aa;
+    cursor:pointer !important
 }
 
 #date {
@@ -272,7 +273,10 @@ ul.list-group li.list-group-item.clickable a {
 
     height: 100%
 }
+#maLink {
 
+cursor:pointer !important
+}
 .inAdsCopyright {
     line-height: 0px !important;
     margin: 0 !important;
@@ -287,7 +291,7 @@ html body div#a.split.split-horizontal div.gutter.gutter-vertical {
 
 </style>
 <link rel="stylesheet" href="assets/css/normalize.css">
-<link rel="stylesheet" href="assets/css/font-awesome.min.css">
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="assets/css/ol.css" type="text/css">
 <script src="assets/js/ol.js" type="text/javascript"></script>
 <link rel='shortcut icon' type='image/x-icon' href='assets/img/favicon.ico'/>
@@ -474,8 +478,8 @@ html body div#a.split.split-horizontal div.gutter.gutter-vertical {
 <div id="a" class="split split-horizontal">
     <div id="c" class="split content">
         <div class="row">
-            <div id="logo" class="col-sm-2"><img src="http://xgis.maaamet.ee/dogisMaaamet/theme/maaamet/img/logo.png"
-                                                 style=" height: 70px" alt="maaamet"</img> </div>
+            <div id="logo" class="col-sm-2"><a id="maLink" href="http://www.maaamet.ee" target="_blank"><img src="http://xgis.maaamet.ee/dogisMaaamet/theme/maaamet/img/logo.png"
+                                                 style=" height: 70px" alt="maaamet"</img></a> </div>
             <div class="col-sm-7"></div>
             <div class="col-sm-2">
                 <div id="kp"><a>Street-View pildistamise kuupäev</a>
@@ -680,7 +684,7 @@ function initialize() {
                 image: new ol.style.Icon(({
                     anchor: [1, 1],
                     opacity: 1,
-                    src: 'http://pegasus.ee/sites/all/modules/custom/mapblock/images/marker.png'
+                    src: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
                 }))
             });
             //var searchAdrVectorSource = new ol.source.Vector({
@@ -704,7 +708,7 @@ function initialize() {
             map.setCenter(new google.maps.LatLng(proj4(proj1, proj2, [y, x])[1], proj4(proj1, proj2, [y, x])[0]));
             var marker = new google.maps.Marker({
                 position: coords,
-                icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+                icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
             });
             //Add listener
             google.maps.event.addListener(marker, "click", function (event) {
@@ -870,7 +874,7 @@ function initialize() {
             image: new ol.style.Icon(({
                 anchor: [1, 1],
                 opacity: 1,
-                src: 'http://pegasus.ee/sites/all/modules/custom/mapblock/images/marker.png'
+                src: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
             }))
         });
         //var searchAdrVectorSource = new ol.source.Vector({
@@ -892,7 +896,7 @@ function initialize() {
         map.setCenter(coords);
         var marker = new google.maps.Marker({
             position: coords,
-            icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+            icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
         });
         //Add listener
         google.maps.event.addListener(marker, "click", function (event) {
@@ -939,7 +943,7 @@ function initialize() {
                     image: new ol.style.Icon(({
                         anchor: [1, 1],
                         opacity: 1,
-                        src: 'http://pegasus.ee/sites/all/modules/custom/mapblock/images/marker.png'
+                        src: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
                     }))
                 });
                 //var searchAdrVectorSource = new ol.source.Vector({
@@ -961,7 +965,7 @@ function initialize() {
                 map.setCenter(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
                 var marker = new google.maps.Marker({
                     position: coords,
-                    icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+                    icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
                 });
                 //Add listener
                 google.maps.event.addListener(marker, "click", function (event) {

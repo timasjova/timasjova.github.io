@@ -70,8 +70,8 @@ body {
 #search {
     position: absolute;
     z-index: 1000;
-    margin-top: 20px;
-    margin-left: 120px;
+    //margin-top: 20px;
+    margin-left: 140px;
     width: 30%
 }
 
@@ -79,7 +79,8 @@ body {
     font-size: 16px;
     padding: 14px 14px 14px 14px;
     color: #2779aa;
-    cursor:pointer !important
+    cursor:pointer !important;
+	
 }
 
 #date {
@@ -222,11 +223,7 @@ ul.list-group li.list-group-item.clickable {
     cursor: pointer;
 }
 
-#kp {
-    position: relative;
-    top: 10%;
-    transform: translateY(+10%);
-}
+
 
 #infoButton {
     cursor: pointer;
@@ -234,6 +231,12 @@ ul.list-group li.list-group-item.clickable {
 
 #homeButton {
     cursor: pointer;
+}
+
+#infoText:hover
+{
+  text-decoration:none !important;
+  color:#337ab7;
 }
 
 ul.list-group.clickable li.list-group-item a {
@@ -289,6 +292,8 @@ html body div#a.split.split-horizontal div.gutter.gutter-vertical {
     background-image: none !important
 }
 
+
+
 </style>
 <link rel="stylesheet" href="assets/css/normalize.css">
 <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
@@ -299,12 +304,12 @@ html body div#a.split.split-horizontal div.gutter.gutter-vertical {
 <link rel="stylesheet" href="assets/css/bootstrap-theme.min.css">
 <script type="text/javascript" src="assets/js/jquery-2.1.4.min.js"></script>
 <script src="assets/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="//inaadress.maaamet.ee/inaadress/js/inaadress.min.js"></script>
+<script type="text/javascript" src="http://inaadress.maaamet.ee/inaadress/js/inaadress.min.js"></script>
 <script type="text/javascript" src="assets/js/proj4.js"></script>
 <script type="text/javascript" src="assets/js/3301.js"></script>
 <script src="assets/js/ResizeSensor.js"></script>
 <script src="assets/js/split.min.js"></script>
-<link href="//fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 
 </head>
@@ -477,13 +482,13 @@ html body div#a.split.split-horizontal div.gutter.gutter-vertical {
 
 <div id="a" class="split split-horizontal">
     <div id="c" class="split content">
-        <div class="row">
+        <div id="menuArea" class="row">
             <div id="logo" class="col-sm-2"><a id="maLink" href="http://www.maaamet.ee" target="_blank"><img src="http://xgis.maaamet.ee/dogisMaaamet/theme/maaamet/img/logo.png"
                                                  style=" height: 70px" alt="maaamet"</img></a> </div>
             <div class="col-sm-7"></div>
             <div class="col-sm-2">
-                <div id="kp"><a>Street-View pildistamise kuupäev</a>
-
+                <div id="kp">
+					<a id="infoText">Street-View pildistamise kuupäev</a>
                     <div id="date"></div>
                 </div>
             </div>
@@ -525,6 +530,12 @@ html body div#a.split.split-horizontal div.gutter.gutter-vertical {
 
 
 $(document).ready(function () {
+
+	var menuHeight=$('#c').height();
+	var infoHeight=$('#kp').height();
+    $('#search').css('margin-top', (menuHeight/2-17.5)+'px');
+    $('#logo').css('margin-top', (menuHeight/2-50)+'px');
+    $('#kp').css('margin-top', (menuHeight/2-infoHeight/2)+'px');
 
     $('#c').css({
         'overflow': 'hidden'
@@ -725,6 +736,7 @@ function initialize() {
             if (typeof coords !== "undefined") {
                 sv.getPanoramaByLocation(coords, 100, function (data) {
                     document.getElementById('date').innerHTML = data.imageDate;
+					
                 });
             } else {
             }
@@ -736,6 +748,9 @@ function initialize() {
     };
     sv.getPanoramaByLocation(maaamet, 100, function (data) {
         document.getElementById('date').innerHTML = data.imageDate;
+		var menuHeight=$('#c').height();
+					var infoHeight=$('#kp').height();
+					$('#kp').css('margin-top', (menuHeight/2-infoHeight/2)+'px');
     });
     var map = new google.maps.Map(document.getElementById('map'), {
         center: maaamet,

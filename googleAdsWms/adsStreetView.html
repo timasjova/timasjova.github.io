@@ -1162,11 +1162,18 @@ window.wmsInitZoom = wmsInitZoom;
 
 wmsmap.getView().on('change:resolution', function () {
 
+		
     if (zoomChanged2 == false) {
         zoomChanged2 = true
 
         var wmsZoom = wmsmap.getView().getZoom();
-        if (wmsInitZoom < wmsZoom) {
+		if (wmsZoom==5){
+			map.setZoom(12)
+		}
+		else if (wmsZoom==8){map.setZoom(15);
+}
+		
+        else if (wmsInitZoom < wmsZoom) {
             var newGoogleZoom = initZoom + 1;
             map.setZoom(newGoogleZoom)
         } else {
@@ -1230,6 +1237,7 @@ var setBase = function (e) {
 
     if (wmsmap.getView().getZoom() > 7) {
         wmsmap.getView().setZoom(5)
+		//map.setZoom(12)
     }
 };
 var setP6hi = function (e) {
@@ -1237,7 +1245,8 @@ var setP6hi = function (e) {
     tile_hybrid.setVisible(false)
     base.setVisible(false)
     p6hikaart.setVisible(true)
-    wmsmap.getView().setZoom(8)
+	//map.setZoom(15)
+    wmsmap.getView().setZoom(8);
 };
 
 $('input[type="radio"]').click(function () {

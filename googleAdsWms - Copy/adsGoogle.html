@@ -343,7 +343,12 @@ html body div#a.split.split-horizontal div.gutter.gutter-vertical {
                                 <ul class="list-group">
                                     <li class="list-group-item"><span class="fa fa-university text-primary"></span><a>
                                         &nbsp;&nbsp;&nbsp;&nbsp;Maa-amet</a>
-                                        <ul class="list-group">                                          
+                                        <ul class="list-group">
+                                            <li class="list-group-item"><span
+                                                    class="fa fa-camera text-danger"></span><a><input class="uus"
+                                                                                                      type="checkbox">&nbsp;&nbsp;&nbsp;&nbsp;Töötlemata
+                                                ortofotod</a></li>
+
                                             <li class="list-group-item"><span
                                                     class="fa fa-picture-o text-success"></span><a><input class="photo"
                                                                                                           type="radio">&nbsp;&nbsp;&nbsp;&nbsp;Ortofoto</a>
@@ -1106,6 +1111,16 @@ var tile_photo = new ol.layer.Tile({
 });
 window.tile_photo = tile_photo;
 
+var wmsNew = new ol.layer.Image({
+    source: new ol.source.ImageWMS({
+        url: 'http://www.maaamet.ee/rr/wms/of_live/?',
+        params: {
+            LAYERS: 'Maaamet OF Live',
+            VERSION: '1.1.1'
+        }
+    })
+});
+window.wmsNew = wmsNew;
 
 
 var wmsmap = new ol.Map({
@@ -1115,7 +1130,7 @@ var wmsmap = new ol.Map({
         })
     }),
     renderer: 'canvas',
-    layers: [tile_photo, tile_hybrid, base, p6hikaart],
+    layers: [tile_photo, tile_hybrid, base, p6hikaart, wmsNew],
     target: document.getElementById('wms'),
     view: new ol.View({
         center: [539625, 6587225],
@@ -1125,6 +1140,7 @@ var wmsmap = new ol.Map({
 });
 wmsmap.getView().setZoom(10);
 
+wmsNew.setVisible(false);
 tile_photo.setVisible(true)
 tile_hybrid.setVisible(false)
 base.setVisible(false)
@@ -1209,7 +1225,14 @@ wmsmap.on('pointerdrag', function (evt) {
 
 
 /*LAYERS*/
+var setNew = function (e) {
+    if (wmsNew.getVisible()) {
+        wmsNew.setVisible(false);
+    } else {
+        wmsNew.setVisible(true);
+    }
 
+};
 var setPhoto = function (e) {
     tile_photo.setVisible(true)
     tile_hybrid.setVisible(false)

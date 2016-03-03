@@ -114,10 +114,14 @@
   <script src="assets/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol.js"></script>
   <script src="assets/js/app.js"></script>
   <script>
+  if($('body').width()>600){
+	        window.location.replace("google.html");
+
+	}
   
    window.onresize = function(event) {
 	if($('body').width()>600){
-	        window.location.replace("adsStreetView.html");
+	        window.location.replace("google.html");
 
 	}
 };

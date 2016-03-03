@@ -402,18 +402,21 @@ html body div#a.split.split-horizontal div.gutter.gutter-vertical {
                     <div id="menu1" class="tab-pane fade">
 
                         <ul class="list-group">
-                            <li id="legendHybrid" class="list-group-item"><a>Hübriid</a> <br> <img
+                            <li id="legendHybrid" class="list-group-item"><a>Hübriid - nähtavusulatus 1:1 -
+                                1:3300000</a> <br> <img
                                     src="http://xgis.maaamet.ee/maps/DoGis?dogis_link=getImage&image=HYBR.0.png"
                                     alt="Hübriid legend"></li>
 
-                            <li id="legendOrtofoto" class="list-group-item"><a>Ortofoto - sellel kihil puudub legend</a></li>
-                            <li id="legendBaas" class="list-group-item"><a>Kaart</a><br> <img
+                            <li id="legendOrtofoto" class="list-group-item"><a>Ortofoto - nähtavusulatus 1:1 -
+                                1:3300000</a></li>
+                            <li id="legendBaas" class="list-group-item"><a>Kaart - nähtavusulatus 1:1 -
+                                1:60000000</a><br> <img
                                     src="http://xgis.maaamet.ee/maps/DoGis?dogis_link=getImage&image=NEW.2000000.png"
                                     alt="Hübriid legend"><br><a
                                     href="http://xgis.maaamet.ee/maps/DoGis?dogis_link=getImage&image=NEW.2000.png"
                                     target="_blank">Rohkem...</a></li>
 
-                            <li id="legendPohi" class="list-group-item"><a>Põhikaart - sellel kihil puudub legend</a>
+                            <li id="legendPohi" class="list-group-item"><a>Põhikaart - nähtavusulatus 1:1 - 1:10000</a>
                             </li>
                         </ul>
 
@@ -1026,6 +1029,7 @@ var projection = ol.proj.get('EPSG:3301');
 
 
 var base = new ol.layer.Tile({
+    //minResolution: 3.90625,
     source: new ol.source.TileWMS({
         attributions: [
             new ol.Attribution({
@@ -1035,7 +1039,7 @@ var base = new ol.layer.Tile({
         url: 'http://tiles.maaamet.ee/tm/s/?',
         tileGrid: new ol.tilegrid.TileGrid({
             origin: [40500, 5993000],
-            resolutions: [4000.0, 2000.0, 1000.0, 500.0, 250.0, 125.0, 62.5, 31.25, 15.625, 7.8125, 3.90625, 1.953125, 0.9765625, 0.48828125]
+            resolutions: [500.0, 250.0, 125.0, 62.5, 31.25, 15.625, 7.8125, 3.90625, 1.953125, 0.9765625, 0.48828125]
         }),
         params: {
             LAYERS: 'kaart',
@@ -1047,7 +1051,9 @@ var base = new ol.layer.Tile({
 window.base = base;
 p6hikaart = new ol.layer.Tile({
     maxResolution: 31.25,
+	maxZoom:8,
     source: new ol.source.TileWMS({
+	maxZoom:8,
         attributions: [
             new ol.Attribution({
                 html: '<a target="_blank" href="http://geoportaal.maaamet.ee/est/Teenused/Avalik-WMS-teenus-p65.html">Maa-amet</a>&nbsp;&nbsp;&nbsp;&nbsp;'
@@ -1056,8 +1062,10 @@ p6hikaart = new ol.layer.Tile({
         url: 'http://tiles.maaamet.ee/tm/s/?',
         tileGrid: new ol.tilegrid.TileGrid({
             origin: [40500, 5993000],
-            resolutions: [4000.0, 2000.0, 1000.0, 500.0, 250.0, 125.0, 62.5, 31.25, 15.625, 7.8125, 3.90625, 1.953125, 0.9765625, 0.48828125]
+			
+            resolutions: [1.953125, 0.9765625, 0.48828125]
         }),
+		
         params: {
             LAYERS: 'epk_v',
             TILED: true,
@@ -1067,14 +1075,13 @@ p6hikaart = new ol.layer.Tile({
 });
 window.p6hikaart = p6hikaart;
 var tile_hybrid = new ol.layer.Tile({
-    title: "Maa-ameti hübriidkaart 2",
-    maxResolution: 10000,
+    title: "Maa-ameti hübriidkaart",
     source: new ol.source.TileWMS({
         url: 'http://tiles.maaamet.ee/tm/s/?',
         ratio: 1.05,
         tileGrid: new ol.tilegrid.TileGrid({
             origin: [40500, 5993000],
-            resolutions: [4000.0, 2000.0, 1000.0, 500.0, 250.0, 125.0, 62.5, 31.25, 15.625, 7.8125, 3.90625, 1.953125, 0.9765625, 0.48828125]
+            resolutions: [500.0, 250.0, 125.0, 62.5, 31.25, 15.625, 7.8125, 3.90625, 1.953125, 0.9765625, 0.48828125]
         }),
         params: {
             TILED: true,
@@ -1099,7 +1106,7 @@ var tile_photo = new ol.layer.Tile({
         ratio: 1.05,
         tileGrid: new ol.tilegrid.TileGrid({
             origin: [40500, 5993000],
-            resolutions: [4000.0, 2000.0, 1000.0, 500.0, 250.0, 125.0, 62.5, 31.25, 15.625, 7.8125, 3.90625, 1.953125, 0.9765625, 0.48828125]
+            resolutions: [500.0, 250.0, 125.0, 62.5, 31.25, 15.625, 7.8125, 3.90625, 1.953125, 0.9765625, 0.48828125]
         }),
         params: {
             LAYERS: ['foto'],
@@ -1156,15 +1163,7 @@ var wmsInitZoom = wmsmap.getView().getZoom();
 window.wmsInitZoom = wmsInitZoom;
 
 
-$( ".ol-zoom-in" ).click(function() {
-  if (wmsInitZoom==0){
-	wmsmap.getView().setZoom(1)
-  }
-});
-
-
 wmsmap.getView().on('change:resolution', function () {
-
 	if(p6hikaart.getVisible()==true){
 		if(wmsmap.getView().getZoom()<5){
 			base.setVisible(true)} else {
@@ -1173,28 +1172,29 @@ wmsmap.getView().on('change:resolution', function () {
 	}
 	
 	
-	
+		
     if (zoomChanged2 == false) {
         zoomChanged2 = true
 
         var wmsZoom = wmsmap.getView().getZoom();
-		console.log(wmsmap.getView().getZoom())
 		if (wmsZoom==5){
 			map.setZoom(12)
 		}
 		else if (wmsZoom==8){map.setZoom(15);
-		}
-		else if ( wmsZoom==1  ){
-		console.log(1)
-						map.setZoom(8)
-		}
+}
+		
         else if (wmsInitZoom < wmsZoom) {
+			console.log(wmsInitZoom)
+						console.log(wmsZoom)
+
             var newGoogleZoom = initZoom + 1;
             map.setZoom(newGoogleZoom)
-        }else if (wmsInitZoom==0&&wmsZoom==0) {
-		
+        } else if (wmsInitZoom==0) {
+			console.log(0)
 		}
 		else {
+		console.log(wmsInitZoom)
+						console.log(wmsZoom)
             var newGoogleZoom = initZoom - 1;
             map.setZoom(newGoogleZoom)
         }

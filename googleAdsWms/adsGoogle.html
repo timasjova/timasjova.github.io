@@ -232,6 +232,9 @@ ul.list-group li.list-group-item.clickable {
 #homeButton {
     cursor: pointer;
 }
+#homeButton2 {
+    cursor: pointer;
+}
 
 #infoText:hover
 {
@@ -255,6 +258,10 @@ ul.list-group li.list-group-item.clickable a {
 #homeButton:hover {
     color: #337ab7;
 }
+#homeButton2:hover {
+    color: #337ab7;
+}
+
 
 .verticalLineLeft {
     border-left: 1px solid #e5e5e5;
@@ -348,6 +355,9 @@ html body div#a.split.split-horizontal div.gutter.gutter-vertical {
                                                     class="fa fa-camera text-danger"></span><a><input class="uus"
                                                                                                       type="checkbox">&nbsp;&nbsp;&nbsp;&nbsp;Töötlemata
                                                 ortofotod</a></li>
+											<li class="list-group-item"><span
+                                                    class="fa fa-camera text-danger"></span><a><input class="ads"
+                                                                                                      type="checkbox" checked>&nbsp;&nbsp;&nbsp;&nbsp;ADS hooned</a></li>
 
                                             <li class="list-group-item"><span
                                                     class="fa fa-picture-o text-success"></span><a><input class="photo"
@@ -495,6 +505,7 @@ html body div#a.split.split-horizontal div.gutter.gutter-vertical {
 
                 <div class="horizontalLine"><i id="infoButton" class="material-icons">menu</i></div>
                 <div><i id="homeButton" class="material-icons">&#xE1B3;</i></div>
+				<div ><i id="homeButton2" class="material-icons" onclick="myFunction()">&#xE87A;</i></div>
 
             </div>
 
@@ -524,7 +535,6 @@ html body div#a.split.split-horizontal div.gutter.gutter-vertical {
 
  }
  };*/
-
 
 $(document).ready(function () {
 
@@ -752,7 +762,7 @@ function initialize() {
     var map = new google.maps.Map(document.getElementById('map'), {
         center: maaamet,
         zoom: 17,
-        maxZoom: 17,
+        maxZoom: 19,
         minZoom: 7,
         mapTypeControl: false,
         zoomControl: true
@@ -769,6 +779,8 @@ function initialize() {
         window.initZoom = initZoom;
     });
 
+	
+	
 
     /*Google events */
 
@@ -834,6 +846,30 @@ function initialize() {
     new ResizeSensor(element3, function () {
         google.maps.event.trigger(panorama, "resize");
     });
+	
+	
+		    streetView = map.getStreetView();
+
+	 google.maps.event.addListener(streetView, "pano_changed", function(){
+        console.log(
+            "pano_changed - " + this.getPosition());
+			var pegman=this.getPosition();
+			map.setCenter(pegman);
+			/*var bounds=map.getBounds();
+			if (bounds.contains(pegman)){
+			}else{
+						console.log("YO")
+						        map.setCenter(pegman);
+
+						
+
+			}*/
+    });
+	
+
+	
+	
+	
     google.maps.event.addListener(map, 'click', function (event) {
         var latitude = event.latLng.lat();
         var longitude = event.latLng.lng();
@@ -866,6 +902,9 @@ function initialize() {
     });
     $('#search').removeClass('ui-page-theme-a');
 
+	
+
+	
     //Geolocation
 
 
@@ -1115,13 +1154,43 @@ var wmsNew = new ol.layer.Image({
     source: new ol.source.ImageWMS({
         url: 'http://www.maaamet.ee/rr/wms/of_live/?',
         params: {
-            LAYERS: 'Maaamet OF Live',
+            LAYERS: 'OF RGB korge foto,OF RGB madal foto',
             VERSION: '1.1.1'
         }
     })
 });
 window.wmsNew = wmsNew;
 
+var wmsADS = new ol.layer.Image({
+    source: new ol.source.ImageWMS({
+        url: 'http://kaart.maaamet.ee/wms/aadressid?',
+        params: {
+            LAYERS:  'ads_hoone',
+            VERSION: '1.1.1'
+        }
+    })
+});
+window.wmsADS = wmsADS;
+var wmsADS2 = new ol.layer.Image({
+    source: new ol.source.ImageWMS({
+        url: 'http://kaart.maaamet.ee/wms/aadressid?',
+        params: {
+            LAYERS:  'ads_hoone_aadr',
+            VERSION: '1.1.1'
+        }
+    })
+});
+window.wmsADS2 = wmsADS2;
+var wmsADS3 = new ol.layer.Image({
+    source: new ol.source.ImageWMS({
+        url: 'http://kaart.maaamet.ee/wms/aadressid?',
+        params: {
+            LAYERS:  'ads_lp',
+            VERSION: '1.1.1'
+        }
+    })
+});
+window.wmsADS3 = wmsADS3;
 
 var wmsmap = new ol.Map({
     controls: ol.control.defaults({
@@ -1130,17 +1199,21 @@ var wmsmap = new ol.Map({
         })
     }),
     renderer: 'canvas',
-    layers: [tile_photo, tile_hybrid, base, p6hikaart, wmsNew],
+    layers: [tile_photo, tile_hybrid, base, p6hikaart, wmsNew, wmsADS,wmsADS2,wmsADS3],
     target: document.getElementById('wms'),
     view: new ol.View({
         center: [539625, 6587225],
-        resolutions: [500.0, 250.0, 125.0, 62.5, 31.25, 15.625, 7.8125, 3.90625, 1.953125, 0.9765625, 0.48828125, 0.244140625],
+        resolutions: [500.0, 250.0, 125.0, 62.5, 31.25, 15.625, 7.8125, 3.90625, 1.953125, 0.9765625, 0.48828125, 0.244140625,0.1220703125, 0.06103515625],
         projection: projection
     })
 });
 wmsmap.getView().setZoom(10);
 
 wmsNew.setVisible(false);
+wmsADS.setVisible(true);
+wmsADS2.setVisible(true);
+wmsADS3.setVisible(true);
+
 tile_photo.setVisible(true)
 tile_hybrid.setVisible(false)
 base.setVisible(false)
@@ -1233,6 +1306,20 @@ var setNew = function (e) {
     }
 
 };
+var setADS = function (e) {
+    if (wmsADS.getVisible()) {
+        wmsADS.setVisible(false);
+		wmsADS2.setVisible(false);
+        wmsADS3.setVisible(false);
+
+    } else {
+        wmsADS.setVisible(true);
+		wmsADS2.setVisible(true);
+        wmsADS3.setVisible(true);
+    }
+
+};
+
 var setPhoto = function (e) {
     tile_photo.setVisible(true)
     tile_hybrid.setVisible(false)
@@ -1320,7 +1407,14 @@ $('input[type="radio"]').click(function () {
     }
 });
 $('input[type="checkbox"]').click(function () {
+ var layerClass = $(this).attr('class')
+ console.log(layerClass)
+         if (layerClass == "uus") {
+
     setNew();
+	}else if (layerClass= "ads") {
+	setADS();
+	}
 });
 
 
@@ -1398,6 +1492,19 @@ $(document).on("click", "#kihtideLegend", function () {
     }
 
 });
+
+
+	function myFunction() {
+			console.log("function")
+			var position=map.getStreetView().getPosition();
+			var bingMapsX=position.lat();
+			var bingMapsY=position.lng();
+			var bingmapslink='http://www.bing.com/maps/default.aspx?cp='+bingMapsX+'~'+bingMapsY+'&style=o&lvl=19';
+			 window.open(bingmapslink, '_blank'); 
+	}
+	
+
+
 
 
 </script>

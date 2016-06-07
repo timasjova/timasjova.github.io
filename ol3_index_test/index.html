@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Indeksid</title>
+    <script type="text/javascript" src="jquery-2.1.0.min.js"></script>
+	<link rel="stylesheet" href="http://openlayers.org/en/v3.2.1/css/ol.css" type="text/css">
+    <script src="http://openlayers.org/en/v3.2.1/build/ol.js" type="text/javascript"></script>
+    <script type="text/javascript" src="features.js"></script>
+    <script type="text/javascript" src="proj4.js"></script>
+	<script type="text/javascript" src="http://inaadress.maaamet.ee/inaadress/js/inaadress.min.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <style>
+        html, body, #map {
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+		
+		html body div.container div.row div.col-md-6 div#aadrSearch.ui-mobile.ui-page-theme-a.in-address-container div.inaadressSearchContainer div.inaadressSearch ul.ui-listview.ui-listview-inset.ui-corner-all.ui-shadow{
+			position: absolute;
+			width: 100%;
+			z-index:1000000;
+		}
+		
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row"></div>
+
+   <div class="row">
+   <div class="col-md-6">
+<div id="aadrSearch" style="width: 95%; height: 600px"></div>
+
+</div>
+<div class="col-md-6">
+<div style="width: 600px; height: 47px;" id="aadrSearch2" class="ui-mobile ui-page-theme-a in-address-container">
+<div alignt="left" class="inaadressSearchContainer">
+<div class="inaadressSearch" style="width: 95%;">
+<form id="inIn" class="ui-filterable">
+<div id="inputIndex" class="ui-input-search ui-shadow-inset ui-input-has-clear ui-body-a ui-corner-all">
+<input id="id1" placeholder="otsi sihtnumbri..." data-type="search" >
+<a title="puhasta" id='closeButton2' class="ui-input-clear ui-btn ui-icon-delete ui-btn-icon-notext ui-corner-all" href="#">puhasta</a></div></form>
+<ul  style="z-index:1100" class="ui-listview ui-listview-inset ui-corner-all ui-shadow"  ></ul></div>
+<div class="inAdsCopyright"><a target="_blank" href="">Sihtnumbrite otsing</a></div></div>
+<div style="display: none;"><!-- placeholder --></div></div>
+</div>
+</div>
+
+ <div class="row">
+<div id="map">
+
+  </div>
+</div>
+
+
+
+</div>
+
+<script>
+$('#closeButton2').hide();
+
+$('#inputIndex').click(function(){
+    $(this).toggleClass("ui-focus");
+});
+
+function myHandler() {
+console.log(456)
+
+if($("#id1").val().length>0){
+$('#closeButton2').show();
+}else{
+$('#closeButton2').hide();
+
+}
+
+}
+
+$('#closeButton2').click(function(){
+    $('#closeButton2').hide();
+	$("#id1").val("")
+});
+
+
+
+onload = function () {
+       var e = document.getElementById('id1');
+       e.oninput = myHandler;
+       e.onpropertychange = e.oninput; // for IE8
+       // e.onchange = e.oninput; // FF needs this in <select><option>...
+       // other things for onload()
+    };
+
+$("#id1").val()
+$('#inIn').keypress(function (e) {
+  if (e.which == 13) {
+  var inputIn=$("#id1").val()
+		console.log($("#id1").val()) 
+
+for(var f=0;f<maakond.getSource().getFeatures().length;f++) {
+  if(maakond.getSource().getFeatures()[f].getProperties().index == inputIn) {
+		var selected_feature=maakond.getSource().getFeatures()[f].getGeometry().getExtent();
+		console.log("on")
+		map.getView().fitExtent(selected_feature,map.getSize());
+  break;
+  }
+}
+
+		
+	return false;    //<---- Add this line
+  }
+});
+
+/*$("#inputIndex").focus(function() {
+    $(this).addClass("ui-focus");
+ });
+
+$("#inputIndex").blur(function() {
+    $(this).removeClass("ui-focus");
+	console.log('1111')
+})
+
+$( "#inputIndex" ).keyup(function() {
+    $(this).removeClass("ui-focus");
+		console.log('11112')
+
+});
+$( "#inputIndex" ).mouseup(function() {
+    $(this).removeClass("ui-focus");
+		console.log('11113')
+
+});*/
+
+$(document).mouseup(function (e)
+{
+    var container = $("#inputIndex");
+
+    if (!container.is(e.target) // if the target of the click isn't the container...
+        && container.has(e.target).length === 0) // ... nor a descendant of the container
+    {
+        container.removeClass("ui-focus");
+    }
+});
+
+var inAadress = new InAadress({"mode":"3","container":"aadrSearch","nocss":false,"appartment":0});
+
+document.addEventListener('addressSelected', function (e) {
+        inAadress.hideResult();
+        var aadress = e.detail[0].aadress;
+        aadress = aadress.split(", ").reverse().join(", ");
+        inAadress.setAddress(aadress);
+    });
+    document.addEventListener('addressSelected', function (e) {
+        var info = e.detail;
+        if (info.length > 0) {
+            // usually select first coordinate as it is most precise
+            var x = info[0].x;
+            x = parseFloat(x);
+            var y = info[0].y;
+            y = parseFloat(y);
+
+            var address = info[0].aadress;
+            var coordinates = [y, x];
+            map.getView().setCenter(coordinates);
+            map.getView().setZoom(11);
+            inAadress.setAddress(address);
+            inAadress.hideResult();
+          
+
+            
+        }
+    })
+
+    proj4.defs("EPSG:3301", "+proj=lcc +lat_1=59.33333333333334 +lat_2=58 +lat_0=57.51755393055556 +lon_0=24 +x_0=500000 +y_0=6375000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
+    var projection = ol.proj.get('EPSG:3301');
+	var map = new ol.Map({
+        target: document.getElementById('map'),
+        view: new ol.View({
+            center: [532527.7637350822, 6575706.066542081],
+            resolutions: [500.0, 250.0, 125.0, 62.5, 31.25, 15.625, 7.8125, 3.90625, 1.953125, 0.9765625, 0.48828125],
+            projection: projection
+        })
+    });
+    map.getView().setZoom(4);    
+	var maakond = new ol.layer.Vector({
+        title: 'index',
+        source: new ol.source.GeoJSON({
+            object: featurecollection
+        }),
+		style: function (feature) {
+        var i = feature.getProperties().export_ky_;
+        return [new ol.style.Style({
+		fill: new ol.style.Fill({
+            color: '#'+Math.floor(Math.random()*16777215).toString(16),
+			weight: 1
+			})
+			 })];
+    }
+    });
+	
+  map.addLayer(maakond);
+
+var featureOverlay = new ol.FeatureOverlay({
+  map: map,
+  style: new ol.style.Style({
+    stroke: new ol.style.Stroke({
+      color: '#319FD3',
+      width: 1
+    }),
+    fill: new ol.style.Fill({
+      color: 'rgba(142, 213, 237, 0.9)'
+    })
+  })
+});
+var highlight;
+var displayFeatureInfo = function(pixel) {
+
+  var feature = map.forEachFeatureAtPixel(pixel, function(feature, layer) {
+    return feature;
+  });
+
+  if (feature !== highlight) {
+    if (highlight) {
+      featureOverlay.removeFeature(highlight);
+    }
+    if (feature) {
+      featureOverlay.addFeature(feature);
+    }
+    highlight = feature;
+  }
+
+};
+  map.on('pointermove', function(evt) {
+  if (evt.dragging) {
+    return;
+  }
+  var pixel = map.getEventPixel(evt.originalEvent);
+  displayFeatureInfo(pixel);
+});
+
+
+map.on('click', function(evt) {
+    var feature = map.forEachFeatureAtPixel(evt.pixel,
+        function(feature, layer) {
+          return feature;
+        });
+	alert(feature.getProperties().index)
+	  
+});
+
+
+</script>
+</body>
+</html>

@@ -12,8 +12,13 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
     <style>
-        html, body, #map {
+        html, body {
             height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+		 #map {
+            height: 90vh;
             margin: 0;
             padding: 0;
         }
@@ -95,10 +100,10 @@ onload = function () {
     };
 
 $("#id1").val()
-$('#inIn').keypress(function (e) {
+/*$('#inIn').keypress(function (e) {
   if (e.which == 13) {
   var inputIn=$("#id1").val()
-		console.log($("#id1").val()) 
+console.log($("#id1").val()) 
 
 for(var f=0;f<maakond.getSource().getFeatures().length;f++) {
   if(maakond.getSource().getFeatures()[f].getProperties().index == inputIn) {
@@ -112,7 +117,27 @@ for(var f=0;f<maakond.getSource().getFeatures().length;f++) {
 		
 	return false;    //<---- Add this line
   }
+});*/
+
+
+$('#inIn').keypress(function (e) {
+  if (e.which == 13) {
+  var inputIn=$("#id1").val()
+console.log($("#id1").val()) 
+
+maakond.getSource().forEachFeature(function(feature) {
+console.log(feature.getProperties().index)
+  if (feature.getProperties().index == inputIn) {
+	var selected_feature=feature.getGeometry().getExtent();
+		console.log("on")
+		map.getView().fitExtent(selected_feature,map.getSize());
+  }
 });
+	
+	return false;    //<---- Add this line
+  }
+});
+
 
 /*$("#inputIndex").focus(function() {
     $(this).addClass("ui-focus");

@@ -7,6 +7,8 @@
 	<link rel="stylesheet" href="http://openlayers.org/en/v3.2.1/css/ol.css" type="text/css">
     <script src="http://openlayers.org/en/v3.2.1/build/ol.js" type="text/javascript"></script>
     <script type="text/javascript" src="features.js"></script>
+	    <script type="text/javascript" src="om.js"></script>
+
     <script type="text/javascript" src="proj4.js"></script>
 	<script type="text/javascript" src="http://inaadress.maaamet.ee/inaadress/js/inaadress.min.js"></script>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
@@ -188,9 +190,42 @@ document.addEventListener('addressSelected', function (e) {
             y = parseFloat(y);
 
             var address = info[0].aadress;
+			var liik =e.detail[0].liik;
+			console.log(e.detail[0].liik)
+			var testtest=e
+			window.testtest=testtest
             var coordinates = [y, x];
             map.getView().setCenter(coordinates);
-            map.getView().setZoom(11);
+			
+			if (liik =='EE'){
+			console.log(1)
+			map.getView().setZoom(11);
+			}else if (liik =='ME'){
+			map.getView().setZoom(11);
+    			console.log(1)
+
+			}else if (liik =='AY'){
+			map.getView().setZoom(7);
+    			console.log(2)
+
+			}else if (liik =='CU'){
+			map.getView().setZoom(8);
+  			console.log(3)
+
+			}else if (liik =='OV'){
+			 map.getView().setZoom(4);
+    			console.log(4)
+
+			}else if (liik =='MK'){
+			map.getView().setZoom(3);
+			console.log(5)
+
+			}else{
+			  map.getView().setZoom(3);
+   			console.log(6)
+
+			}
+			
             inAadress.setAddress(address);
             inAadress.hideResult();
           
@@ -227,6 +262,23 @@ document.addEventListener('addressSelected', function (e) {
     });
 	
   map.addLayer(maakond);
+  	var om = new ol.layer.Vector({
+        title: 'index',
+        source: new ol.source.GeoJSON({
+            object: omavalitsus
+        }),
+		style: function (feature) {
+        var i = feature.getProperties().export_ky_;
+        return [new ol.style.Style({
+		stroke: new ol.style.Stroke({
+      color: 'black',
+      width: 1
+    })
+			 })];
+    }
+    });
+	
+  map.addLayer(om);
 
 var featureOverlay = new ol.FeatureOverlay({
   map: map,
@@ -244,8 +296,11 @@ var highlight;
 var displayFeatureInfo = function(pixel) {
 
   var feature = map.forEachFeatureAtPixel(pixel, function(feature, layer) {
+
     return feature;
-  });
+  }, null, function(layer) {
+  return layer === maakond;
+});
 
   if (feature !== highlight) {
     if (highlight) {

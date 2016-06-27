@@ -8,6 +8,8 @@
     <script src="http://openlayers.org/en/v3.2.1/build/ol.js" type="text/javascript"></script>
     <script type="text/javascript" src="features.js"></script>
 	    <script type="text/javascript" src="features2.js"></script>
+			    <script type="text/javascript" src="sa_kiht.js"></script>
+
 
     <script type="text/javascript" src="proj4.js"></script>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
@@ -34,6 +36,9 @@
     <label>
       <input class='ky' type="checkbox"> Intersecting KÜ (thinness ratio <0.1) 
     </label>
+	  <label>
+      <input class='sa' type="checkbox"> SA piirkonnad 
+    </label>
     <label>
       <input class='ho' type="checkbox"> Hooned
     </label>
@@ -59,6 +64,7 @@
 <script>
 $('.cl').prop('checked', true);
 $('.ky').prop('checked', true);
+$('.sa').prop('checked', true);
 
     proj4.defs("EPSG:3301", "+proj=lcc +lat_1=59.33333333333334 +lat_2=58 +lat_0=57.51755393055556 +lon_0=24 +x_0=500000 +y_0=6375000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
     var projection = ol.proj.get('EPSG:3301');
@@ -161,6 +167,25 @@ tile_photo.setVisible(false)
 	
   map.addLayer(ky);
   
+    
+  	var sa = new ol.layer.Vector({
+        title: 'SA kiht',
+        source: new ol.source.GeoJSON({
+            object: sa_kiht
+        }),
+		style: function (feature) {
+        var i = feature.getProperties().export_ky_;
+        return [new ol.style.Style({
+		fill: new ol.style.Fill({
+            color: '#66a3ff',
+			weight: 1
+			})
+			 })];
+    }
+    });
+	
+  map.addLayer(sa);
+  
    var wmsADS = new ol.layer.Image({
     source: new ol.source.ImageWMS({
         url: 'http://kaart.maaamet.ee/wms/aadressid?',
@@ -233,6 +258,16 @@ $('input[type="checkbox"]').click(function () {
         wmsADS.setVisible(false);
     } else {
         wmsADS.setVisible(true);
+    }
+	
+	
+	}else if (layerClass=="sa") {
+	console.log(2)
+	
+	 if (sa.getVisible()) {
+        sa.setVisible(false);
+    } else {
+        sa.setVisible(true);
     }
 	
 	

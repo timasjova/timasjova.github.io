@@ -1,0 +1,25 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>In-ADS komponent</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<script type="text/javascript" src="http://inadstest.maaamet.ee/inaadress/js/inaadress.min.js"></script>
+<style>
+
+	[id^="OpenLayers_Feature_Vector"] {
+	 fill: white !important;
+	 stroke:green !important;
+	 stroke-width: 1px !important;
+	 font-size: 18px !important;
+	}
+
+	</style>
+</head>
+<body>
+<div id="inAdsDiv" style="width: 100%; height: 100%"></div>
+<script>
+var inAadress = new InAadress({"mode":4,"markers":{"bbox":[539295,6586985,539955,6587465],"addresses":[{"ident":0,"x":"6587225.00","y":"539625.00","title":"Mustamäe tee 51, Kristiine linnaosa, Tallinn, Harju maakond"}]},"container":"inAdsDiv","defaultBaseLayer":"ALUSKAART","baseLayers":["ALUSKAART"],"WMS":[],"nocss":false,"fullscreenMode":true});
+</script>
+</body>
+</html>

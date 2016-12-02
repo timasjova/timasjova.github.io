@@ -27,6 +27,10 @@
           checkContainer();
          });
          
+		 function openTln () {
+			window.open("tln_ma.html");
+		 }
+		 
          function checkContainer () {
           if($('#OpenLayers_Geometry_Point_36').is(':visible')){ //if the container is visible on the page
                 var markers= document.querySelectorAll('[id^=OpenLayers_Geometry_Point]')
@@ -35,7 +39,8 @@
                     }
                 document.getElementById('OpenLayers_Geometry_Point_34').setAttribute('xlink:href', 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Map_marker_icon_%E2%80%93_Nicolas_Mollet_%E2%80%93_Home_%E2%80%93_People_%E2%80%93_Light.png')
          		var b = document.getElementById('OpenLayers_Geometry_Point_34'); 
-         		b.addEventListener('click', function(){  window.open("tln_ma.html");   }, false);
+         		b.addEventListener('click', openTln);
+				console.log('here')
          		document.getElementById("OpenLayers_Geometry_Point_34").style.cursor="pointer";
          
          } else {
@@ -49,16 +54,11 @@
                 for (var i=0; i < markers.length; i++) {
                         markers[i].setAttribute('xlink:href', 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Map_marker_icon_%E2%80%93_Nicolas_Mollet_%E2%80%93_Home_%E2%80%93_People_%E2%80%93_Dark.png');
                     }
-         			document.getElementById('OpenLayers_Geometry_Point_34').setAttribute('xlink:href', 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Map_marker_icon_%E2%80%93_Nicolas_Mollet_%E2%80%93_Home_%E2%80%93_People_%E2%80%93_Light.png')
-         		//var b = document.getElementById('OpenLayers_Geometry_Point_34'); 
-         		//b.addEventListener('click', function(){  window.open("tln_ma.html");   }, false);
-         		document.getElementById("OpenLayers_Geometry_Point_34").style.cursor="pointer";
+       			document.getElementById('OpenLayers_Geometry_Point_34').setAttribute('xlink:href', 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Map_marker_icon_%E2%80%93_Nicolas_Mollet_%E2%80%93_Home_%E2%80%93_People_%E2%80%93_Light.png')
+         		var b = document.getElementById('OpenLayers_Geometry_Point_34'); 
+				document.getElementById("OpenLayers_Geometry_Point_34").style.cursor="pointer";			
          }); 
-         
-         
-         
-         
-         
+       
       </script>
    </body>
 </html>

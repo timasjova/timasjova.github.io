@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html>
    <head>
@@ -22,26 +20,58 @@
       <div id="tlnModal" class="modal">
       <script>
          var inAadress = new InAadress({"mode":4,"markers":{"bbox":[345500,6340200,784950,6659800],"addresses":[{"ident":0,"x":"6587225.00","y":"539625.00","title":"Harju "},{"ident":1,"x":"6539886.00","y":"426634.00","title":"Hiiu "},{"ident":2,"x":"6458015.00","y":"411294.00","title":"Saare "},{"ident":3,"x":"6534492.00","y":"473228.00","title":"Lääne "},{"ident":5,"x":"6405813.00","y":"620968.00","title":"Valga "},{"ident":6,"x":"6414951.00","y":"678284.00","title":"Võru "},{"ident":7,"x":"6438759.00","y":"680110.00","title":"Põlva "},{"ident":8,"x":"6474180.00","y":"658368.00","title":"Tartu "},{"ident":9,"x":"6470250.00","y":"593300.00","title":"Viljandi"},{"ident":10,"x":"6528445.00","y":"590612.00","title":"Järva"},{"ident":11,"x":"6473936.00","y":"529066.00","title":"Pärnu"},{"ident":12,"x":"6584636.00","y":"694635.00","title":"Ida-Viru"},{"ident":13,"x":"6581302.00","y":"633472.00","title":"Lääne-Viru"},{"ident":15,"x":"6541019.29","y":"545569.86","title":"Rapla"},{"ident":16,"x":"6514480.00","y":"638831.00","title":"Jõgeva"}]},"container":"inAdsDiv","showScale":true,"defaultBaseLayer":"ALUSKAART","baseLayers":["ALUSKAART"],"WMS":[],"nocss":false});
+          function openTln () {
+         window.open("tln_ma.html");
+         }
+         
+         function changeMarker(){
+         var markers= document.querySelectorAll('[id^=OpenLayers_Geometry_Point]')
+                for (var i=0; i < markers.length; i++) {
+                        markers[i].setAttribute('xlink:href', 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Map_marker_icon_%E2%80%93_Nicolas_Mollet_%E2%80%93_Home_%E2%80%93_People_%E2%80%93_Dark.png');
+                    }
+         if( document.getElementById('OpenLayers_Geometry_Point_34') ) {
+         document.getElementById('OpenLayers_Geometry_Point_34').setAttribute('xlink:href', 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Map_marker_icon_%E2%80%93_Nicolas_Mollet_%E2%80%93_Home_%E2%80%93_People_%E2%80%93_Light.png')
+         		document.getElementById("OpenLayers_Geometry_Point_34").style.cursor="pointer";
+         }
+         
+         }
+         
+         if (!!window.chrome){
+         
+         console.log('chrome')
+         
+         setTimeout(function(){ 
+         
+         changeMarker();
+         var b = document.getElementById('OpenLayers_Geometry_Point_34'); 
+         		b.addEventListener('click', openTln);
+         
+         document.addEventListener('mapNavigate', function(e
+         ){  
+         changeMarker();
+         
+         });
+         
+         
+         }, 400);
+         
+         }
+         
+         else
+         
+         {
          
          $(document).ready(function() {
           checkContainer();
          });
          
-		 function openTln () {
-			window.open("tln_ma.html");
-		 }
-		 
+         
+         
          function checkContainer () {
           if($('#OpenLayers_Geometry_Point_36').is(':visible')){ //if the container is visible on the page
-                var markers= document.querySelectorAll('[id^=OpenLayers_Geometry_Point]')
-                for (var i=0; i < markers.length; i++) {
-                        markers[i].setAttribute('xlink:href', 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Map_marker_icon_%E2%80%93_Nicolas_Mollet_%E2%80%93_Home_%E2%80%93_People_%E2%80%93_Dark.png');
-                    }
-                document.getElementById('OpenLayers_Geometry_Point_34').setAttribute('xlink:href', 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Map_marker_icon_%E2%80%93_Nicolas_Mollet_%E2%80%93_Home_%E2%80%93_People_%E2%80%93_Light.png')
-         		var b = document.getElementById('OpenLayers_Geometry_Point_34'); 
+                changeMarker();
+         var b = document.getElementById('OpenLayers_Geometry_Point_34'); 
          		b.addEventListener('click', openTln);
-				console.log('here')
-         		document.getElementById("OpenLayers_Geometry_Point_34").style.cursor="pointer";
          
          } else {
           setTimeout(checkContainer, 50); //wait 50 ms, then try again
@@ -50,15 +80,11 @@
          
          document.addEventListener('mapNavigate', function(e
          ){  
-            var markers= document.querySelectorAll('[id^=OpenLayers_Geometry_Point]')
-                for (var i=0; i < markers.length; i++) {
-                        markers[i].setAttribute('xlink:href', 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Map_marker_icon_%E2%80%93_Nicolas_Mollet_%E2%80%93_Home_%E2%80%93_People_%E2%80%93_Dark.png');
-                    }
-       			document.getElementById('OpenLayers_Geometry_Point_34').setAttribute('xlink:href', 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Map_marker_icon_%E2%80%93_Nicolas_Mollet_%E2%80%93_Home_%E2%80%93_People_%E2%80%93_Light.png')
-         		var b = document.getElementById('OpenLayers_Geometry_Point_34'); 
-				document.getElementById("OpenLayers_Geometry_Point_34").style.cursor="pointer";			
+            				changeMarker();
+         
          }); 
-       
+         }
+         
       </script>
    </body>
 </html>
